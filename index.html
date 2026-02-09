@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="theme-color" content="#f0f7ff">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="CC Spinner">
+  
+  <link rel="apple-touch-icon" href="icon.png">
+  <link rel="manifest" href="manifest.json">
+
+  <title>CC Spinner</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700;800&display=swap');
+
+:root {
+  --primary: #ff6f61;
+  --primary-dark: #d9534f;
+  --secondary: #4a90e2;
+  --bg: #f8fafc;
+  --card-bg: rgba(255, 255, 255, 0.9);
+  --text-main: #1e293b;
+  --text-muted: #64748b;
+  --radius: 24px;
+  --shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* This locks the screen from scrolling */
+  touch-action: none; /* Prevents "pull-to-refresh" and accidental zooms */
+}
+
+body {
+  font-family: 'Quicksand', sans-serif;
+  background: radial-gradient(circle at top, #f0f7ff, #e2e8f0);
+  background-attachment: fixed;
+  color: var(--text-main);
+  text-align: center;
+  
+  /* Create a vertical flex container */
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  padding: env(safe-area-inset-top, 20px) 15px 80px 15px; /* Bottom padding for editBtn */
+}
+
+h1 {
+  font-weight: 800;
+  font-size: 1.8rem;
+  color: var(--text-main);
+  margin: 10px 0 20px;
+}
+
+/* --- THE DISPLAY CARDS --- */
+#result, #prompt, #answer, .slot {
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: var(--radius);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: var(--shadow);
+}
+
+#prompt {
+  font-size: 19px; 
+  font-weight: 600; 
+  margin: 12px auto; 
+  padding: 18px;
+  min-height: 80px; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: var(--radius);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: var(--shadow);
+  width: 95%;          /* Forces it to take up horizontal space */
+  max-width: 600px !important; 
+  box-sizing: border-box;
+  flex-shrink: 0;      /* Prevents height squishing */
+}
+
+/* --- NEW UNIFIED ANSWER BOX --- */
+#answerContainer {
+  width: 95%;
+  max-width: 600px !important;
+  margin: 12px auto;
+  box-sizing: border-box;
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: var(--radius);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+#toggleAnswer {
+  width: 100%;
+  padding: 18px;
+  background: transparent;
+  color: var(--secondary);
+  border: none;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 800;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+#answerContent {
+  padding: 0 20px;
+  max-height: 0px; /* Hidden by default */
+  overflow-y: auto;
+  transition: all 0.3s ease;
+  color: var(--text-muted);
+  font-size: 17px;
+  white-space: pre-wrap; /* This ensures long text wraps correctly */
+  text-align: center;
+}
+
+/* When active, show the content */
+#answerContainer.open #answerContent {
+  max-height: 450px; /* Adjust based on typical answer length */
+  padding: 0 20px 20px 20px;
+}
+
+#answerContainer.open {
+  border: 2px solid var(--secondary);
+}
+
+/* Adjustments for tight spacing */
+.rollerBox { margin: 15px 0; }
+#result { margin: 5px auto; }
+
+/* --- THE SLOT MACHINE --- */
+.rollerBox { display: flex; justify-content: center; gap: 15px; margin: 25px 0; }
+.slot { width: 150px; height: 80px; overflow: hidden; border: 3px solid #fff; position: relative; }
+.slot::after {
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 50%;
+  background: linear-gradient(rgba(255,255,255,0.5), transparent); pointer-events: none;
+}
+.reel div { height: 80px; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 700; color: var(--text-main); }
+
+/* --- BUTTONS --- */
+/* --- NEW FLOATING SPIN BUTTON --- */
+#spinBtn {
+  position: fixed;
+  bottom: 100px; /* Sits above the "Edit Lesson Grid" bar */
+  right: 20px;
+  width: 85px;
+  height: 85px;
+  border-radius: 50%; /* Perfect circle */
+  
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  border-bottom: 4px solid var(--primary-dark);
+  
+  font-size: 18px;
+  font-weight: 800;
+  text-transform: uppercase;
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 25px rgba(255, 111, 97, 0.4);
+  cursor: pointer;
+  z-index: 600; /* Higher than editBtn */
+  transition: all 0.1s ease;
+  padding: 0; /* Clear default button padding */
+}
+
+#spinBtn:active {
+  transform: translateY(2px);
+  border-bottom-width: 1px;
+}
+
+#spinBtn:disabled {
+  background: #cbd5e1;
+  border-bottom-color: #94a3b8;
+  box-shadow: none;
+  opacity: 0.7;
+}
+
+#editBtn {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  
+  /* Styling to make it look like a nav bar */
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: var(--secondary);
+  
+  border: none;
+  border-top: 1px solid rgba(0,0,0,0.1);
+  border-radius: 0; /* Flat against the bottom */
+  
+  padding: 15px 0;
+  margin: 0;
+  width: 100%;
+  font-weight: 700;
+  font-size: 16px;
+  
+  /* Keep it above everything else */
+  z-index: 500;
+  
+  /* Support for iPhone "Home Bar" spacing */
+  padding-bottom: calc(15px + env(safe-area-inset-bottom, 0px));
+  cursor: pointer;
+}
+
+/* Add some padding to the body so the button doesn't cover content at the very bottom */
+body {
+  padding-bottom: 80px; 
+}
+
+#toggleAnswer:active {
+  transform: scale(0.96); /* Visual "press" feedback */
+  background: var(--secondary);
+  color: #fff;
+}
+
+#toggleAnswer:disabled {
+  opacity: 0.3;
+  border-color: #cbd5e1;
+  color: #94a3b8;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* --- GRID OVERLAY (RESTORED TO ORIGINAL BEHAVIOR) --- */
+#gridOverlay {
+  display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.35);
+  z-index: 1000; justify-content: flex-start; align-items: stretch;
+}
+
+#gridContent {
+  width: 100vw; height: calc(var(--vh, 1vh) * 100);
+  display: flex; flex-direction: column; background: #fff;
+  overflow: hidden; padding-top: env(safe-area-inset-top, 44px);
+}
+
+.gridHeader {
+  display: flex; align-items: center; padding: 12px 20px;
+  background: #fff; border-bottom: 2px solid #eee;
+}
+
+.gridHeader h2 { flex: 1; text-align: center; margin: 0; padding-right: 45px; font-size: 1.4rem; }
+
+.closeGridBtn {
+  font-size: 1.8rem; color: #fff; background: #4a90e2; border-radius: 50%;
+  width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;
+  border: none; cursor: pointer; flex-shrink: 0;
+}
+
+/* --- TABLE FIXES (RESTORING COMPACT LOOK) --- */
+#grid {
+  padding: 12px 6px 32px 6px; overflow-y: auto; overflow-x: hidden;
+  touch-action: pan-y; width: 100%; box-sizing: border-box; flex: 1;
+}
+
+#grid table {
+  table-layout: fixed; width: 100%; border-collapse: collapse; background: white;
+}
+
+#grid th, #grid td {
+  border: 1px solid #aaa; padding: 0; height: 40px; text-align: center;
+  white-space: nowrap; font-size: 14px;
+}
+
+#grid th.subjectHeader {
+  height: 100px;
+  background: #ffd966;
+  padding: 0;
+  margin: 0;
+  vertical-align: middle;
+  text-align: center;
+  overflow: hidden;
+}
+
+#grid th.subjectHeader span {
+  display: inline-block;
+  /* Rotate from the center of the word */
+  transform: rotate(-90deg) translateX(-30px); 
+  
+  /* This prevents the word from pushing the row height and pulls it 
+     back up into the center of the orange cell */
+  white-space: nowrap;
+  line-height: 1;
+  width: 20px; 
+  
+  /* Font Tweaks */
+  font-weight: 700;
+  font-size: 13px;
+  color: #000;
+  
+  /* Force it to stay inside the cell boundaries */
+  pointer-events: none;
+}
+  
+#resetConfirmOverlay {
+  position: fixed;
+  inset: 0; /* Shorthand for top, bottom, left, right: 0 */
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.5); /* Slightly darker for better focus */
+  z-index: 3000; /* Higher than the Grid Overlay */
+}
+
+#resetConfirmOverlay .confirmBox {
+  background: #fff;
+  padding: 25px;
+  border-radius: 15px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+  width: 85%;
+  max-width: 320px;
+  text-align: center;
+}
+.week-header { background: #cce7ff; width: 56px; }
+
+.weekNumber {
+  display: flex; align-items: center; justify-content: center;
+  width: 100%; height: 100%; border: none; background: #fff;
+  font-weight: 700; font-size: 16px; color: #0b2540; cursor: pointer;
+}
+
+.weekNumber.active { background: #22c55e; color: #fff; }
+.completed { background: #ccc !important; color: #666; }
+.override { background: #d4f0d8; }
+.blocked { background: #fdecea; color: #5a2a28; }
+
+.maxWeekControl {
+  display: inline-flex; align-items: center; gap: 8px; background: #fff8d6;
+  padding: 8px 10px; border-radius: 10px; border: 1px solid #f3d08a;
+}
+.maxWeekBtn {
+  width: 34px; height: 34px; background: #ffd37a; border: 1px solid #e6a83a;
+  border-radius: 8px; cursor: pointer; font-size: 18px;
+}
+
+.version-tag {
+  position: absolute; top: env(safe-area-inset-top, 10px);
+  right: 15px; font-size: 10px; color: var(--text-muted); opacity: 0.5;
+}
+
+.confirmBox { background: #fff; border-radius: 8px; padding: 20px; text-align: center; }
+
+</style>
+</head>
+<body>
+
+<div class="rollerBox">
+  <div class="slot">
+    <div class="reel" id="subjectReel"></div>
+  </div>
+  <div class="slot">
+    <div class="reel" id="weekReel"></div>
+  </div>
+</div>
+
+<div id="prompt"></div>
+
+<div id="answerContainer">
+  <button id="toggleAnswer" onclick="toggleAnswer()">▼ Show Answer ▼</button>
+  <div id="answerContent"></div>
+</div>
+
+<button id="editBtn" onclick="toggleGrid()">Edit Lesson Grid</button>
+
+<div class="version-tag">v<span id="app-version">1.0.4</span></div>
+
+<button id="spinBtn" onclick="spinBoth()">Spin</button>
+
+<div id="resetConfirmOverlay">
+  <div class="confirmBox">
+    <h3 style="margin-top:0">Clear Progress?</h3>
+    <p>This will reset all lessons in the grid.</p>
+    <div style="display:flex; gap:12px; justify-content:center;">
+      <button onclick="resetGridConfirmed()" style="background:var(--primary); color:white; border:none; padding:12px 20px; border-radius:12px; font-weight:700; cursor:pointer;">Yes, Reset</button>
+      <button onclick="hideResetConfirm()" style="background:#f1f5f9; color:#64748b; padding:12px 20px; border:none; border-radius:12px; font-weight:700; cursor:pointer;">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div id="gridOverlay">
+  <div id="gridContent">
+    <div class="gridHeader">
+      <button class="closeGridBtn" onclick="toggleGrid()">←</button>
+      <h2>Lesson Grid</h2>
+    </div>
+    <div class="gridControls" style="display: flex; justify-content: space-between; align-items: center;">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div>Max Week:</div>
+        <div class="maxWeekControl">
+          <button class="maxWeekBtn" id="decreaseWeek">−</button>
+          <div id="maxWeekDisplay">24</div>
+          <button class="maxWeekBtn" id="increaseWeek">+</button>
+        </div>
+      </div>
+      <button onclick="resetGrid()" style="background: #eee; color: #666; border: 1px solid #ccc; padding: 5px 10px; cursor: pointer; border-radius: 5px;">
+        Reset Progress
+      </button>
+    </div>
+    <div id="grid"></div>
+  </div>
+</div>
+
+<script>
+// Logic remains largely the same, but we update visibility instead of display
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+let isSpinning = false;
+const subjects = ["Bible", "English", "Geography", "History", "Latin", "Math", "Science", "Timeline"];
+const subjectIcons = {
+  "Bible": "📜", "English": "📖", "Geography": "🌍", "History": "⚔️",
+  "Latin": "🏛️", "Math": "🔢", "Science": "🧪", "Timeline": "⏳"
+};
+const weeks = Array.from({length: 24}, (_, i) => i + 1);
+
+/* ... [Lesson Data remains identical to your original code] ... */
+const lessonData = {
+  "Math": {
+    1: { p: "1s and 2s", a: "1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15; 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30" },
+    2: { p: "3s and 4s", a: "3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45; 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48, 52, 56, 60" },
+    3: { p: "5s and 6s", a: "5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75; 6, 12, 18, 24, 30, 36, 42, 48, 54, 60, 66, 72, 78, 84, 90" },
+    4: { p: "7s and 8s", a: "7, 14, 21, 28, 35, 42, 49, 56, 63, 70, 77, 84, 91, 98, 105; 8, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 104, 112, 120" },
+    5: { p: "9s and 10s", a: "9, 18, 27, 36, 45, 54, 63, 72, 81, 90, 99, 108, 117, 126, 135; 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150" },
+    6: { p: "11s and 12s", a: "11, 22, 33, 44, 55, 66, 77, 88, 99, 110, 121, 132, 143, 154, 165; 12, 24, 36, 48, 60, 72, 84, 96, 108, 120, 132, 144, 156, 168, 180" },
+    7: { p: "13s", a: "13, 26, 39, 52, 65, 78, 91, 104, 117, 130, 143, 156, 169, 182, 195" },
+    8: { p: "14s", a: "14, 28, 42, 56, 70, 84, 98, 112, 126, 140, 154, 168, 182, 196, 210" },
+    9: { p: "15s", a: "15, 30, 45, 60, 75, 90, 105, 120, 135, 150, 165, 180, 195, 210, 225" },
+    10: { p: "Squares", a: "1, 4, 9, 16, 25, 36, 49, 64, 81, 100, 121, 144, 169, 196, 225" },
+    11: { p: "Cubes", a: "1, 8, 27, 64, 125, 216, 343, 512, 729, 1000, 1331, 1728, 2197, 2744, 3375" },
+    12: { p: "Teaspoons and Tablespoons", a: "3 teaspoons equals 1 tablespoon; 2 tablespoons equals 1 fluid ounce" },
+    13: { p: "Liquid Equivalents", a: "8 fluid ounces = 1 cup; 2 cups = 1 pint; 2 pints = 1 quart; 4 quarts = 1 gallon" },
+    14: { p: "Linear Equivalents", a: "2.54 centimeters = 1 inch; 12 inches = 1 foot; 5,280 feet = 1 mile" },
+    15: { p: "Metric Measurements", a: "10 millimeters = 1 centimeter; 100 centimeters = 1 meter; 1,000 meters = 1 kilometer" },
+    16: { p: "Area of a Rectangle", a: "The area of a rectangle equals length times width" },
+    17: { p: "Area of a Square", a: "The area of a square equals length of its side squared" },
+    18: { p: "Area of a Triangle", a: "The area of a triangle equals one-half base times height" },
+    19: { p: "Area of a Circle", a: "The area of a circle equals pi (3.14) times the radius squared" },
+    20: { p: "Circumference of a Circle", a: "The circumference of a circle equals 2 times pi (3.14) times the radius" },
+    21: { p: "The Associative Law", a: "Addition: (a+b)+c = a+(b+c); Multiplication: (a*b)*c = a*(b*c)" },
+    22: { p: "The Commutative Law", a: "Addition: a+b = b+a; Multiplication: a*b = b*a" },
+    23: { p: "The Distributive Law", a: "a(b+c) = ab + ac" },
+    24: { p: "The Identity Law", a: "Addition: a+0 = a; Multiplication: a*1 = a" }
+  },
+  "Latin": {
+    1: { p: "1st Conjugation Endings: Present Tense", a: "-o, -s, -t, -mus, -tis, -nt" },
+    2: { p: "1st Conjugation Endings: Present Tense", a: "-o, -s, -t, -mus, -tis, -nt" },
+    3: { p: "1st Conjugation Endings: Imperfect Tense", a: "-bam, -bas, -bat, -bamus, -batis, -bant" },
+    4: { p: "1st Conjugation Endings: Imperfect Tense", a: "-bam, -bas, -bat, -bamus, -batis, -bant" },
+    5: { p: "1st Conjugation Endings: Future Tense", a: "-bo, -bis, -bit, -bimus, -bitis, -bunt" },
+    6: { p: "1st Conjugation Endings: Future Tense", a: "-bo, -bis, -bit, -bimus, -bitis, -bunt" },
+    7: { p: "1st Conjugation Endings: Perfect Tense", a: "-i, -isti, -it, -imus, -istis, -erunt" },
+    8: { p: "1st Conjugation Endings: Perfect Tense", a: "-i, -isti, -it, -imus, -istis, -erunt" },
+    9: { p: "1st Conjugation Endings: Pluperfect Tense", a: "-eram, -eras, -erat, -eramus, -eratis, -erant" },
+    10: { p: "1st Conjugation Endings: Pluperfect Tense", a: "-eram, -eras, -erat, -eramus, -eratis, -erant" },
+    11: { p: "1st Conjugation Endings: Future Perfect Tense", a: "-ero, -eris, -erit, -erimus, -eritis, -erint" },
+    12: { p: "1st Conjugation Endings: Future Perfect Tense", a: "-ero, -eris, -erit, -erimus, -eritis, -erint" },
+    13: { p: "1st Conjugation Endings: Present Tense", a: "-o, -s, -t, -mus, -tis, -nt" },
+    14: { p: "1st Conjugation Endings: Present Tense", a: "-o, -s, -t, -mus, -tis, -nt" },
+    15: { p: "1st Conjugation Endings: Imperfect Tense", a: "-bam, -bas, -bat, -bamus, -batis, -bant" },
+    16: { p: "1st Conjugation Endings: Imperfect Tense", a: "-bam, -bas, -bat, -bamus, -batis, -bant" },
+    17: { p: "1st Conjugation Endings: Future Tense", a: "-bo, -bis, -bit, -bimus, -bitis, -bunt" },
+    18: { p: "1st Conjugation Endings: Future Tense", a: "-bo, -bis, -bit, -bimus, -bitis, -bunt" },
+    19: { p: "1st Conjugation Endings: Perfect Tense", a: "-i, -isti, -it, -imus, -istis, -erunt" },
+    20: { p: "1st Conjugation Endings: Perfect Tense", a: "-i, -isti, -it, -imus, -istis, -erunt" },
+    21: { p: "1st Conjugation Endings: Pluperfect Tense", a: "-eram, -eras, -erat, -eramus, -eratis, -erant" },
+    22: { p: "1st Conjugation Endings: Pluperfect Tense", a: "-eram, -eras, -erat, -eramus, -eratis, -erant" },
+    23: { p: "1st Conjugation Endings: Future Perfect Tense", a: "-ero, -eris, -erit, -erimus, -eritis, -erint" },
+    24: { p: "1st Conjugation Endings: Future Perfect Tense", a: "-ero, -eris, -erit, -erimus, -eritis, -erint" }
+  },
+  "Science": {
+    1: { p: "What occurred on each day of creation?", a: "1: earth, space, time, light; 2: atmosphere; 3: dry land, plants; 4: sun, moon, stars; 5: fish, sea creatures, birds; 6: land animals, Adam, Eve" },
+    2: { p: "What are some land biomes?", a: "grassland, desert, scrubland, tundra, deciduous forest, coniferous forest, tropical rainforest" },
+    3: { p: "What are three types of consumers?", a: "herbivore, carnivore, omnivore" },
+    4: { p: "What are some parts of the food chain?", a: "producer, consumer, decomposer" },
+    5: { p: "What are some cycles in nature?", a: "water cycle, carbon and oxygen cycle, nitrogen cycle" },
+    6: { p: "How do animals react to environmental change?", a: "adapt, migrate, hibernate" },
+    7: { p: "What are six forms of pollution?", a: "noise, air, water, land, thermal, radioactive" },
+    8: { p: "What are some aquatic biomes?", a: "ponds and lakes, streams and rivers, wetlands and estuaries, oceans and seas" },
+    9: { p: "What are some parts of the sun?", a: "core, radiative zone, convective zone, sunspots, photosphere, solar flare, corona" },
+    10: { p: "What are the names of the planets?", a: "Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, Neptune" },
+    11: { p: "What are the phases of the moon?", a: "new, crescent, quarter, gibbous, full" },
+    12: { p: "What are some other bodies in our solar system?", a: "asteroids, meteroids, meteorites, comets" },
+    13: { p: "What are some names of U.S. space missions?", a: "Mercury, Gemini, Apollo, Shuttle" },
+    14: { p: "What are the states of matter?", a: "solid, liquid, gas, plasma" },
+    15: { p: "What are two forms of energy?", a: "kinetic, potential" },
+    16: { p: "What is Newton's first law of motion?", a: "Newton's first law of motion states that an object at rest tends to remain at rest and an object in motion tends to continue moving in a straight line at constant speed unless an outside force acts upon it." },
+    17: { p: "What is Newton's second law of motion?", a: "Newton's second law of motion states that force equals mass times acceleration ($F=ma$)." },
+    18: { p: "What is Newton's third law of motion?", a: "Newton's third law of motion states that for every action, there is an equal and opposite reaction." },
+    19: { p: "What is the first law of thermodynamics?", a: "The first law of thermodynamics states that energy cannot be created or destroyed." },
+    20: { p: "What is the second law of thermodynamics?", a: "Often called the law of entropy, the second law of thermodynamics explains why heat flows from an area of higher temperature to an area of lower temperature." },
+    21: { p: "What is the third law of thermodynamics?", a: "The third law of thermodynamics explains that it is impossible to reach the state of absolute zero temperature." },
+    22: { p: "What are some ways light is observed?", a: "reflection, refraction, spectrum, wave, particle" },
+    23: { p: "How does heat flow?", a: "radiation, conduction, convection" },
+    24: { p: "What units are used to measure electricity?", a: "ohms measure resistance, volts measure voltage, amps measure current, watts measure power" }
+  },
+  "English": {
+    1: { p: "Parts of Speech", a: "noun, pronoun, verb, adverb, conjunction, interjection, preposition, adjective" },
+    2: { p: "A Pronoun", a: "A pronoun replaces a noun in order to avoid repetition." },
+    3: { p: "Pronoun Order", a: "1st person singular, 2nd person singular, 3rd person singular, 1st person plural, 2nd person plural, 3rd person plural" },
+    4: { p: "Nominative Pronouns", a: "I, you, he/she/it, we, you, they" },
+    5: { p: "Objective Pronouns", a: "me, you, him/her/it, us, you, them" },
+    6: { p: "Possessive Pronouns", a: "mine, yours, his/hers/its, ours, yours, theirs" },
+    7: { p: "Possessive Pronoun Adjectives", a: "my, your, his/her/its, our, your, their" },
+    8: { p: "Reflexive Pronouns", a: "myself, yourself, himself/herself/itself, ourselves, yourselves, themselves" },
+    9: { p: "Interrogative Pronouns", a: "who, whom, whose, which, what" },
+    10: { p: "Demonstrative Pronouns", a: "this, that, these, those" },
+    11: { p: "Indefinite Pronouns", a: "all, another, any, anybody, anyone, anything, both, each, either" },
+    12: { p: "Indefinite Pronouns", a: "everybody, everyone, everything, few, many, more, most, neither" },
+    13: { p: "Indefinite Pronouns", a: "nobody, none, one, other, several, some, somebody, someone, such" },
+    14: { p: "An Adverb", a: "An adverb modifies a verb, adjective, or another adverb—and answers the questions: How? When? Where? and Why?" },
+    15: { p: "Four Purposes of Sentences", a: "declarative, exclamatory, interrogative, imperative" },
+    16: { p: "A Verb", a: "A verb is a word that asserts an action, shows a state of being, links two words together, or helps another verb." },
+    17: { p: "A Noun", a: "A noun names a person, place, thing, activity, or idea." },
+    18: { p: "Five Cases of Nouns", a: "subject, direct object, indirect object, object of the preposition, possessive" },
+    19: { p: "A Gerund", a: "A gerund is a present participle verb form used as a noun." },
+    20: { p: "An Appositive", a: "An appositive is a noun or pronoun directly beside another noun that explains or identifies it." },
+    21: { p: "A Conjunction", a: "A conjunction is a word used to connect words, phrases, or clauses together." },
+    22: { p: "Coordinating Conjunctions", a: "For, And, Nor, But, Or, Yet, So (FANBOYS)" },
+    23: { p: "An Adjective", a: "An adjective modifies a noun or pronoun by describing, qualifying, or limiting—and answers the questions: What kind? How many? Which? Whose?" },
+    24: { p: "An Interjection", a: "An interjection is a word or phrase used as a strong expression of feeling or emotion." }
+  },
+  "History": {
+    1: { p: "Tell me about Charlemagne.", a: "In 800, during the medieval period, Pope Leo III crowned Charlemagne Holy Roman Emperor of Europe." },
+    2: { p: "Tell me about William the Conqueror.", a: "In 1054,the church split into Roman Catholic and Eastern Orthodox. William the Conqueror defeated King Harold of England in 1066 and started feudalism." },
+    3: { p: "Tell me about the Crusades.", a: "Richard the Lion-Hearted, son of Eleanor of Aquitaine, fought the Turks for Jerusalem during the time of the Crusades, from 1095 to 1291." },
+    4: { p: "Tell me about the Magna Carta.", a: "English King John signed the Magna Carta in 1215, limiting the king's power. Later, England's King Edward III claimed to be king of France and began the Hundred Years' War in 1337." },
+    5: { p: "Tell me about the Hundred Years' War.", a: "During the Hundred Years' War, Joan of Arc and King Charles VII led the French to defeat the English at the Siege of Orleans. In the late 1340s fleas on rats carried the plague, which killed one of out three Europeans" },
+    6: { p: "Tell me about the Renaissance.", a: "During the Renaissance period, from 1350 to 1600, Leonardo da Vinci was a famous inventor, Shakespeare was a famous playwright, Michelangelo was a famous artist, and Copernicus was a famous scientist." },
+    7: { p: "Tell me about the Reformation.", a: "In 1517, Martin Luther began the Protestant Reformation by printing the Ninety-Five Theses that made Pope Leo X excommunicate him. Later John Clavin joined the Reformation." },
+    8: { p: "Tell me about European explorers.", a: "Between the late 1400s and the mid-1500s, Dias rounded the Cape of Good Hope, Amerigo Vespucci sailed the the Americas, Balboa crossed Central America to the Pacific, Magellan's crew sailed around the globe, and Coronado explored the American Southwest." },
+    9: { p: "Tell me about some absolute monarchs.", a: "Between the 1500s and 1800s, Henry VIII of England, Louis XIV of France, Philip II of Spain, Peter the Great of Russia, and Frederick the Great of Prussia ruled during the age of absolute monarchs." },
+    10: { p: "Tell me about the history of Russia.", a: "Vladimir I brought Christianity to Russia in the 900s. In the 1500s, Czar Ivan the Terrible unified Russia, Peter the Great and Catherine the Great expanded and Westernized Russia in the 1700s." },
+    11: { p: "Tell me about the French Revolution.", a: "In 1789, the French Revolution began when citizens stormed the Bastille and fought for the Declaration of the Rights of Man. Later, during the Reign of Terror, the aristocrats' heads were removed by the guillotine." },
+    12: { p: "Tell me about the Battle of Waterloo.", a: "Napoleon Bonaparte of the French Empire was defeated at the Battle of Waterloo by British General Wellington and his allies soon after the War of 1812 in the United States." },
+    13: { p: "Tell me about the Industrial Revolution.", a: "Watt's steam engine, Cartwright's power loom, and Whitney's cotton gin spurred the Industrial Revolution that began in the 1760s." },
+    14: { p: "Tell me about World War I leaders.", a: "Clemenceau of France, Lloyd George of England, Nicholas II of Russia, Wilhelm II of Germany, and Wilson of the United States were leaders during World War I, which started in 1914 and ended in 1918." },
+    15: { p: "Tell me about World War I countries.", a: "During World War I, Great Britain, France and Russia were Allies and fought against Austria-Hungary and Germany, which were called the Central Powers. In 1917, the United States entered the war, assisting the Allies" },
+    16: { p: "Tell me about how World War II began.", a: "World War II began in 1939 when Hitler invaded Poland. Two engagements that helped the United States win the Pacific front were defeating Japan at the Battle of Midway dropping atomic bombs on Hiroshima and Nagasaki in 1945." },
+    17: { p: "Tell me about World War II leaders.", a: "World War II Axis leaders were: Hitler of Germany, Tojo of Japan, and Mussolini of Italy. World War II Allied leaders were: Churchill of England, Roosevelt, Eisenhower and MacArthur of the United States and Stalin of the USSR." },
+    18: { p: "Tell me about the United Nations.", a: "In 1945, after the League of Nations failed to prevent World War II, American President Roosevelt, British Prime Minister Churchill, and Soviet Premier Stalin began the United Nations." },
+    19: { p: "Tell me about the Korean War.", a: "In 1950, General Douglas MacArthur led United Nations forces to stop communist North Korea from capturing all of South Korea during the Korean War." },
+    20: { p: "Tell me about the Vietnam War.", a: "In 1965, President Johnson sent U.S. troops to stop communist North Vietnam from capturing all of South Vietnam during the Vietnam War." },
+    21: { p: "Tell me about the end of the Cold War.", a: "In the 1980s, British Prime Minister Margaret Thatcher and American President Ronald Reagan worked together to end the Cold War, lessen big government, and strengthen the conservative movement." },
+    22: { p: "Tell me about the fall of communism.", a: "In 1989, the communist dictators began to fall in Eastern Europe when Soviet General Secretary Gorbachev refused to send military aid." },
+    23: { p: "Tell me about the Gulf War.", a: "In 1990, President George H. W. Bush sent troops to the Persian Gulf to expel Iraqi leader Saddam Hussein from Kuwait during the Gulf War." },
+    24: { p: "Tell me about the end of apartheid.", a: "In 1994, South African President de Klerk allowed free elections. Nelson Mandela became South Africa's first black president, demonstrating apartheid was ending." }
+  },
+  "Geography": {
+    1: { p: "Continents/Oceans", a: "Continents: North America, South America, Europe, Asia, Africa, Australia, Antarctica; Oceans: Indian Ocean, Arctic Ocean, Atlantic Ocean, Pacific Ocean, Southern Ocean" },
+    2: { p: "European Waters", a: "North Sea, Baltic Sea, English Channel, Mediterranean Sea, Adriatic Sea" },
+    3: { p: "Western European Countries", a: "Ireland, England, Portugal, Spain, France" },
+    4: { p: "European Rivers", a: "Seine River, Rhine River, Elbe River, Po River, Danube River, Volga River" },
+    5: { p: "European Cities", a: "London, Paris, Rome, Barcelona, Orleans" },
+    6: { p: "European Mountains", a: "Pyrenees, Alps, Carpathians, Caucasus, Ural, Matterhorn" },
+    7: { p: "European Peninsulas", a: "Iberian, Scandinavian, Balkan, Apennine" },
+    8: { p: "Mid-Atlantic World", a: "Cape of Good Hope, Strait of Magellan, Canary Islands, Treaty of Tordesillas" },
+    9: { p: "The Caribbean", a: "Cuba, Jamaica, Haiti, Dominican Republic, Puerto Rico" },
+    10: { p: "Southwest Asia", a: "Arabian Sea, India, Kolkata, Pakistan, Afghanistan" },
+    11: { p: "Europe and Asia", a: "Russia, Moscow, Ukraine, Kiev, Siberia" },
+    12: { p: "Eastern European Seas", a: "Barents Sea, White Sea, Black Sea, Caspian Sea, Aral Sea" },
+    13: { p: "Northern European Countries", a: "Norway, Sweden, Finland, Denmark" },
+    14: { p: "Baltic Europe", a: "Estonia, Latvia, Lithuania, Poland, Belarus" },
+    15: { p: "The Levant", a: "Turkey, Cyprus, Syria, Iraq, Iran" },
+    16: { p: "The Balkans", a: "Slovenia, Albania, Romania, Bulgaria, Greece" },
+    17: { p: "Central European Countries", a: "Netherlands, Belgium, Luxembourg, Germany, Switzerland" },
+    18: { p: "More European Countries", a: "Italy, Austria, Hungary, Czechia, Slovakia" },
+    19: { p: "Southeastern Asia", a: "North Korea, South Korea, Taiwan, Philippines, Guam" },
+    20: { p: "South Central Asia", a: "Laos, Thailand, Cambodia, North Vietnam, South Vietnam" },
+    21: { p: "Central America", a: "Guatemala, Belize, El Salvador, Honduras, Nicaragua" },
+    22: { p: "Oceania", a: "Indonesia, Papua New Guinea, Australia, Great Barrier Reef, New Zealand" },
+    23: { p: "Central Asia", a: "Kazakhstan, Uzbekistan, Turkmenistan, Tajikistan, Kyrgyzstan" },
+    24: { p: "Southern Africa", a: "Namibia, Botswana, Mozambique, South Africa, Lesotho.                       " }
+  },
+  "Bible": {
+    1: { p: "What are the names of eight significant judges of Israel? (1-4)", a: "1. Othniel, 2. Ehud, 3. Deborah, 4. Gideon" },
+    2: { p: "What are the names of eight significant judges of Israel? (5-8)", a: "5. Jephthah, 6. Samson, 7. Eli, 8. Samuel" },
+    3: { p: "Who are the three kings of united Israel?", a: "1. Saul, 2. David, 3. Solomon" },
+    4: { p: "Who was David?", a: "Warrior, hero, musician, poet, king; fell greatly in sin, yet rose again to love and serve God" },
+    5: { p: "What is God's covenant with David?", a: "That the Messiah would come from the family of David; The tribe of Judah would establish an unending kingdom" },
+    6: { p: "Who oversaw the building of the first Jewish temple?", a: "King Solomon" },
+    7: { p: "What was the consequence of King Solomon's building worship temples to false gods for his pagen wives to worship?", a: "Israel divided into two kingdoms" },
+    8: { p: "Who was the first king of Israel, the northern kingdom?", a: "Jeroboam I" },
+    9: { p: "Who was the first king of Judah, the southern kingdom?", a: "Rehoboam, son of Solomon" },
+    10: { p: "Who are eighteen significant prophets of Israel? (1-6)", a: "1. Elijah, 2. Elisha, 3. Obadiah, 4. Joel, 5. Jonah, 6. Amos" },
+    11: { p: "Who are eighteen significant prophets of Israel? (7-12)", a: "7. Hosea, 8. Isaiah, 9. Micah, 10. Jeremiah, 11. Zephaniah, 12. Habakkuk" },
+    12: { p: "Who are eighteen significant prophets of Israel? (13-18)", a: "13. Nahum, 14. Ezekiel, 15. Daniel, 16. Haggai, 17. Malachi, 18. Zechariah" },
+    13: { p: "What two nations took the Jewish people into captivity?", a: "Assyria (722 BC); Babylon (586 BC)" },
+    14: { p: "Old Testament prophesy about the New Covenant?", a: "Jeremiah" },
+    15: { p: "Destruction of the first Jewish temple in 586 BC?", a: "Babylonian invasion under King Nebuchadnezzar" },
+    16: { p: "Destruction of the second Jewish temple in 70 AD?", a: "Roman soldiers during the first Jewish revolt" },
+    17: { p: "Prophecies in the Old Testament pertain to...", a: "Israel and other nations, The Messiah, End Times" },
+    18: { p: "What are the five main types of Psalms?", a: "Hymns of praise, Songs of thanksgiving, Royal psalms, Wisdom psalms, Laments" },
+    19: { p: "Book of wise instruction for godly life?", a: "Proverbs" },
+    20: { p: "Three Hebrew names of God?", a: "YHWH (Yahweh), 'I am'; Adonai, 'The Lord'; Elohim, 'The all-powerful God'" },
+    21: { p: "Original languages of the Old Testament?", a: "Hebrew and Aramaic" },
+    22: { p: "Emperor of Rome when Jesus was born?", a: "Caesar Augustus" },
+    23: { p: "Age of Jesus teaching in the temple?", a: "12 years old" },
+    24: { p: "How many OT prophecies did Jesus fulfill?", a: "Over 100!" }
+  },
+  "Timeline": {
+    1: { p: "Age of Ancient Empires - Minoans and Mycenaeans", a: "AGE OF ANCIENT EMPIRES (Creation to circa 450 AD), Creation and the Fall, The Flood and the Tower of Babel, Mesopotamia and Sumer, Egyptians, (3000 BC) Indus River Valley Civilization, Minoans and Mycenaeans" },
+    2: { p: "Seven Wonders of the Ancient World - China's Shang Dynasty", a: "Seven Wonders of the Ancient World, Patriarchs of Israel, (2000 BC) Hittites and Canaanites, Kush, Assyrians, Babylonians, China's Shang Dynasty" },
+    3: { p: "Hinduism in India - Israel's United Kingdom", a: "Hinduism in India, Phoenicians and the Alphabet, Olmecs of Mesoamerica, Israelite Exodus and Desert Wandering, Israelite Conquest and Judges, Greek Dark Ages, Israel's United Kingdom" },
+    4: { p: "Early Native Americans - Lao-Tzu, Confucius, Buddha", a: "(1000 BC) Early Native Americans, Israel Divides into Two Kingdoms, Homer and Hesiod, Rome Founded by Romulus and Remus, Israel Falls to Assyria, Assyria Falls to Babylon, Lao-Tzu, Confucius, Buddha" },
+    5: { p: "Judah Falls to Babylon - Persia Falls to Alexander the Great", a: "Judah Falls to Babylon, Temple Destroyed, Babylon Falls to Persia, Jews Return and Rebuild the Temple, Roman Republic, Golden Age of Greece, Peloponnesian Wars, Persia Falls to Alexander the Great" },
+    6: { p: "India's Mauryan Empire - John the Baptist", a: "India's Mauryan Empire, Mayans of Mesoamerica, Punic Wars, Rome Conquers Greece, Roman Dictator Julius Caesar, Caesar Augustus and the Pax Romana, John the Baptist" },
+    7: { p: "Jesus the Messiah - India's Gupta Dynasty", a: "Jesus the Messiah, (Year 1 AD) Pentecost and the Early Church, Persecution Spreads the Gospel, Herod's Temple Destroyed by Titus, Diocletian Divides the Roman Empire, Constantine Legalizes Christianity, India's Gupta Dynasty" },
+    8: { p: "Council of Nicea - Western Roman Empire Falls to Barbarians", a: "Council of Nicea, Augustine of Hippo, Jerome Completes the Vulgate, Visigoths Sack Rome, THE MIDDLE AGES (circa 450-1500) Council of Chalcedon, Western Roman Empire Falls to Barbarians" },
+    9: { p: "Byzantine Emperor Justinian - Vikings Raid and Trade", a: "(500 AD) Byzantine Emperor Justinian, Benedict and Monasticism, Muhammad Founds Islam, Zanj and Early Ghana, Franks Defeat Muslims at the Battle of Tours, Golden Age of Islam, Vikings Raid and Trade" },
+    10: { p: "Japan's Heian Period - East-West Schism of the Church", a: "Japan's Heian Period, Charlemagne Crowned Emperor of Europe, Alfred the Great, Erik the Red and Leif Eriksson, Vladimir I of Kiev, Byzantine Emperor Basil II, (1000 AD) East-West Schism of the Church" },
+    11: { p: "Norman Conquest and Feudalism in Europe - Incas of South America", a: "Norman Conquest and Feudalism in Europe, The Crusades, Zimbabwe and Early Mali in Africa, Aztecs of Mesoamerica, Francis of Assisi and Thomas Aquinas, Japan's Shoguns, Incas of South America" },
+    12: { p: "Genghis Khan Rules the Mongols - China's Ming Dynasty", a: "Genghis Khan Rules the Mongols, England's Magna Carta, Ottoman Empire, Marco Polo's Journey to China, The Hundred Years' War and Black Death, The Renaissance, China's Ming Dynasty" },
+    13: { p: "Age of Exploration - The Spanish Inquisition", a: "AGE OF EXPLORATION (c. 1400-1600), Prince Henry Founds School of Navigation, Slave Trade in Africa, Gutenberg's Printing Press, Songhai in Africa, Czar Ivan the Great of Russia, The Spanish Inquisition" },
+    14: { p: "Columbus Sails to the Caribbean - Baroque Period of the Arts", a: "Columbus Sails to the Caribbean, (1500 AD) AGE OF ABSOLUTE MONARCHS (c. 1500-1800), Protestant Reformation, Spanish Conquistadors in the Americas, Calvin's Institutes of the Christian Religion, Council of Trent, Baroque Period of the Arts" },
+    15: { p: "Japan's Isolation - The Seven Years' War", a: "Japan's Isolation, Jamestown and Plymouth Colony Founded, AGE OF ENLIGHTENMENT (c. 1650-1800), Hudson's Bay Company, First Great Awakening, Classical Period of the Arts, The Seven Years' War" },
+    16: { p: "Age of Industry - Louisiana Purchase and Lewis and Clark Expidition", a: "AGE OF INDUSTRY (c. 1760-1969), James Cook Sails to Australia, American Revolution and General George Washington, Madison's Constitution and the Bill of Rights, French Revolution, Second Great Awakening, Louisiana Purchase and Lewis and Clark Expedition" },
+    17: { p: "Napoleon to Romantic Period of the Arts", a: "Napoleon Crowned Emperor of France, Liberation of South America, The War of 1812, The Missouri Compromise, Immigrants Flock to America, The Monroe Doctrine, Romantic Period of the Arts" },
+    18: { p: "Cherokee Trail of Tears to Darwin Publishes The Origin of Species", a: "Cherokee Trail of Tears, U.S. Westward Expansion, Marx Publishes The Communist Manifesto, The Compromise of 1850 and Dred Scott Decision, U.S. Restores Trade with Japan, British Queen Victoria's Rule Over India, Darwin Publishes The Origin of Species" },
+    19: { p: "Lincoln's War Between the States to The Progressive Era", a: "Lincoln's War Between the States, Reconstruction of the Southen States, Dominion of Canada, Otto von Bismarck Unifies Germany, Boer Wars in Africa, The Spanish-American War, The Progressive Era" },
+    20: { p: "Australia Becomes a Commonwealth to The Great Depression and the New Deal", a: "Australia Becomes a Commonwealth, Mexican Revolution, World War I and President Wilson, Lenin and the Bolshevik Revolution in Russia, U.S. Evangelist Billy Graham, Modern Period of the Arts, The Great Depression and the New Deal" },
+    21: { p: "World War II to Mao and Communist Victory in China", a: "World War II and President Franklin D. Roosevelt, Stalin of the USSR and the Katyn Massacre, The United Nations Formed, The Cold War, Gandhi and India's Independence, Jewish State Established, Mao and Communist Victory in China" },
+    22: { p: "North Atlantic Treaty Organization to U.S. Astronauts Walk on the Moon", a: "North Atlantic Treaty Organization, The Korean War, Martin Luther King, Jr. and the Civil Rights Movement, Jim and Elisabeth Elliot - Missionaries to Ecuador, The Antarctic Treaty, The Vietnam War, U.S. Astronauts Walk on the Moon, " },
+    23: { p: "Age of Information and Globalization to Rising Tide of Freedom", a: "AGE OF INFORMATION AND GLOBALIZATION (c. 1970-present), Watergate and President Nixon Resigns, Fall of Communism in Eastern Europe, European Union Formed, Apartheid Abolished in South Africa, (2000 AD) September 11, 2001, Rising Tide of Freedom" },
+    24: { p: "Canadian Prime Ministers", a: "Macdonald, Mackenzie, Macdonald, Abbott, Thompson, Bowell, Tupper, Laurier, Borden, Meighen, King, Meighen, King, Bennett, King, St. Laurent, Diefenbaker, Pearson, Trudeau, Clark, Trudeau, Turner, Mulroney, Campbell, Chrétien, Martin, Harper, Trudeau, Carney" }
+  }
+};
+
+function playSound(frequency, type, duration, volume = 0.1) {
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  const oscillator = audioCtx.createOscillator();
+  const gainNode = audioCtx.createGain();
+  oscillator.type = type; 
+  oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
+  gainNode.gain.setValueAtTime(0.001, audioCtx.currentTime);
+  gainNode.gain.exponentialRampToValueAtTime(volume, audioCtx.currentTime + 0.01);
+  gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+  oscillator.connect(gainNode);
+  gainNode.connect(audioCtx.destination);
+  oscillator.start();
+  oscillator.stop(audioCtx.currentTime + duration);
+}
+
+// --- DATA LOADING ---
+const savedData = localStorage.getItem('ccSpinnerProgress');
+const savedMaxWeek = localStorage.getItem('ccMaxWeek');
+const savedAllowedWeeks = localStorage.getItem('ccAllowedWeeks');
+const savedBlockedWeeks = localStorage.getItem('ccBlockedWeeks');
+let gridState = savedData ? JSON.parse(savedData) : {};
+let allowedWeeks = savedAllowedWeeks ? JSON.parse(savedAllowedWeeks) : [];
+let blockedWeeks = savedBlockedWeeks ? JSON.parse(savedBlockedWeeks) : [];
+
+if (!savedData) {
+  subjects.forEach(s => {
+    gridState[s] = {};
+    weeks.forEach(w => gridState[s][w] = true);
+  });
+}
+
+window.onload = function() {
+  if (savedMaxWeek) setMaxWeek(parseInt(savedMaxWeek, 10));
+  else setMaxWeek(24);
+  
+  // Set initial button state
+  document.getElementById('toggleAnswer').disabled = true;
+  buildGrid();
+};
+
+function saveToDevice() {
+  localStorage.setItem('ccSpinnerProgress', JSON.stringify(gridState));
+  localStorage.setItem('ccMaxWeek', String(getMaxWeek()));
+  localStorage.setItem('ccAllowedWeeks', JSON.stringify(allowedWeeks));
+  localStorage.setItem('ccBlockedWeeks', JSON.stringify(blockedWeeks));
+}
+
+function getMaxWeek() {
+  const el = document.getElementById("maxWeekDisplay");
+  return Math.max(1, Math.min(24, parseInt(el.textContent, 10) || 24));
+}
+function setMaxWeek(n) {
+  document.getElementById("maxWeekDisplay").textContent = String(Math.max(1, Math.min(24, Number(n) || 1)));
+}
+function increaseWeek() { setMaxWeek(getMaxWeek() + 1); buildGrid(); }
+function decreaseWeek() { setMaxWeek(getMaxWeek() - 1); buildGrid(); }
+
+// --- SPIN LOGIC ---
+function spinReel(reelId, items, finalValue, duration = 2400) {
+  const reel = document.getElementById(reelId);
+  reel.innerHTML = "";
+  const spins = 20;
+  const sequence = [];
+  for (let i = 0; i < spins; i++) sequence.push(items[Math.floor(Math.random() * items.length)]);
+  sequence.push(finalValue);
+  sequence.forEach(text => {
+    const div = document.createElement("div");
+    div.textContent = subjectIcons[text] ? `${subjectIcons[text]} ${text}` : text;
+    reel.appendChild(div);
+  });
+
+  const itemHeight = 80;
+  const totalMove = (sequence.length - 1) * itemHeight;
+  let currentTick = 0;
+  
+  function playNextTick() {
+    if (!isSpinning || currentTick >= sequence.length) return;
+    playSound(1000, 'sine', 0.02, 0.01); 
+    currentTick++;
+    const nextDelay = (duration / sequence.length) * (1 + Math.pow(currentTick / sequence.length, 2) * 10);
+    if (currentTick < sequence.length) setTimeout(playNextTick, nextDelay);
+  }
+  playNextTick();
+
+  reel.style.transition = "none";
+  reel.style.transform = "translateY(0)";
+  setTimeout(() => {
+    reel.style.transition = `transform ${duration}ms cubic-bezier(0.15, 0, 0.15, 1)`;
+    reel.style.transform = `translateY(-${totalMove}px)`;
+  }, 20);
+}
+
+function spinBoth() {
+  // 1. TACTILE FEEDBACK: Vibrate immediately on touch
+
+  const spinBtn = document.getElementById("spinBtn");
+
+  if (spinBtn.textContent === "Reset") {
+     showResetConfirm(); 
+     return; 
+  }
+  
+  const toggleBtn = document.getElementById("toggleAnswer");
+  const ansDiv = document.getElementById("answerContent");
+  const promptDiv = document.getElementById("prompt");
+
+  if (isSpinning) return;
+  if (navigator.vibrate) navigator.vibrate(15); 
+
+  const maxWeekLimit = getMaxWeek();
+  const availableSubjects = subjects.filter(s =>
+    weeks.some(w => (w <= maxWeekLimit || allowedWeeks.includes(w)) && !blockedWeeks.includes(w) && gridState[s][w])
+  );
+
+if (availableSubjects.length === 0) {
+  spinBtn.textContent = "Reset";
+  spinBtn.style.background = "#64748b"; // A neutral gray when empty
+  spinBtn.style.fontSize = "14px";
+  return;
+}
+
+  isSpinning = true;
+  spinBtn.disabled = true;
+  toggleBtn.disabled = true;
+  toggleBtn.textContent = '▼ Show Answer ▼';
+  document.getElementById('answerContainer').classList.remove('open');
+  ansDiv.textContent = "";
+  promptDiv.textContent = "";
+
+  const subject = availableSubjects[Math.floor(Math.random() * availableSubjects.length)];
+  const availableWeeks = weeks.filter(w => ((w <= maxWeekLimit || allowedWeeks.includes(w)) && !blockedWeeks.includes(w)) && gridState[subject][w]);
+  const week = availableWeeks[Math.floor(Math.random() * availableWeeks.length)];
+
+  spinReel("subjectReel", availableSubjects, subject, 2000);
+  spinReel("weekReel", availableWeeks.map(w => "Week " + w), "Week " + week, 2800);
+
+  setTimeout(() => {
+    playSound(880, 'sine', 0.5, 0.04); 
+    
+    // 2. SUCCESS FEEDBACK: Double-pulse vibration when result lands
+    if (navigator.vibrate) navigator.vibrate([40, 30, 40]);
+    
+    const lesson = lessonData[subject][week];
+    document.getElementById('prompt').textContent = lesson.p;
+    
+    const content = document.getElementById('answerContent');
+    content.textContent = lesson.a;
+    document.getElementById('answerContainer').classList.remove('open');
+    
+    toggleBtn.disabled = false;
+    toggleBtn.textContent = '▼ Show Answer ▼';
+    
+    gridState[subject][week] = false;
+    saveToDevice();
+    buildGrid();
+    isSpinning = false;
+    spinBtn.disabled = false;
+  }, 2600);
+}
+
+function toggleAnswer() {
+  if (navigator.vibrate) navigator.vibrate(10);
+  
+  const container = document.getElementById('answerContainer');
+  const btn = document.getElementById('toggleAnswer');
+  
+  container.classList.toggle('open');
+  
+  if (container.classList.contains('open')) {
+    btn.textContent = '▲ Hide Answer ▲';
+  } else {
+    btn.textContent = '▼ Show Answer ▼';
+  }
+}
+
+function resetGrid() {
+  showResetConfirm(); 
+}
+
+function resetGridConfirmed() {
+  // 1. Stop any active spin and hide the popup immediately
+  isSpinning = false;
+  hideResetConfirm();
+
+  // 2. Reset all internal data
+  subjects.forEach(s => {
+    gridState[s] = {};
+    weeks.forEach(w => gridState[s][w] = true);
+  });
+  allowedWeeks = [];
+  blockedWeeks = [];
+
+  // 3. Save to phone memory and refresh the visual grid
+  saveToDevice();
+  buildGrid();
+  
+  // 4. Reset the Spin Button to original state
+  const spinBtn = document.getElementById("spinBtn");
+  spinBtn.textContent = "Spin";
+  spinBtn.style.background = "var(--primary)"; 
+  spinBtn.style.fontSize = "18px";
+  spinBtn.disabled = false; // Ensure it's clickable again
+  
+  // 5. Clear the prompt and close the answer drawer
+  document.getElementById('prompt').textContent = "Grid Reset!";
+  document.getElementById('answerContent').textContent = ""; 
+  
+  const answerContainer = document.getElementById('answerContainer');
+  const toggleBtn = document.getElementById('toggleAnswer');
+  
+  answerContainer.classList.remove('open');
+  toggleBtn.textContent = '▼ Show Answer ▼';
+  toggleBtn.disabled = true;
+}
+
+function showResetConfirm() {
+  const el = document.getElementById('resetConfirmOverlay');
+  if (el) el.style.display = 'flex';
+}
+
+function hideResetConfirm() {
+  const el = document.getElementById('resetConfirmOverlay');
+  if (el) el.style.display = 'none';
+}
+
+// --- GRID UI ---
+function toggleGrid(){
+  const overlay = document.getElementById("gridOverlay");
+  overlay.style.display = (overlay.style.display === "flex") ? "none" : "flex";
+  if (overlay.style.display === "flex") buildGrid();
+}
+
+function buildGrid(){
+  saveToDevice();
+  const maxWeek = getMaxWeek();
+  const container = document.getElementById('gridContent');
+  const containerWidth = container ? container.clientWidth : window.innerWidth;
+  const weekColWidth = 48;
+  const horizontalPadding = 12;
+  const availableForSubjects = Math.max(120, containerWidth - weekColWidth - horizontalPadding);
+  const subjectWidth = Math.max(32, Math.floor(availableForSubjects / subjects.length));
+
+  let html = "<table><colgroup>";
+  html += `<col style="width:${weekColWidth}px">`;
+  subjects.forEach(() => { html += `<col style="width:${subjectWidth}px">`; });
+  html += '</colgroup><tr><th></th>';
+  subjects.forEach(s => { html += `<th class="subjectHeader" onclick="toggleSubject('${s}')"><span>${s}</span></th>`; });
+  html += '</tr>';
+
+  weeks.forEach(w => {
+    const isAllowed = allowedWeeks.includes(w);
+    const isBlocked = blockedWeeks.includes(w);
+    const numClass = isBlocked ? 'blocked' : (isAllowed ? 'active' : '');
+    html += `<tr><th class="week-header" data-week="${w}"><button class="weekNumber ${numClass}" data-week="${w}">${w}</button></th>`;
+    subjects.forEach(s => {
+      let cls = "";
+      if (!gridState[s][w] || isBlocked || (w > maxWeek && !isAllowed)) cls = "completed";
+      else if (isAllowed && w > maxWeek) cls = "override";
+      html += `<td class="${cls}" onclick="toggleCell('${s}',${w})"></td>`;
+    });
+    html += '</tr>';
+  });
+  document.getElementById('grid').innerHTML = html + '</table>';
+  bindWeekHeaderHandlers();
+}
+
+function bindWeekHeaderHandlers(){
+  document.querySelectorAll('#grid th.week-header').forEach(th => th.addEventListener('click', ()=> toggleWeek(Number(th.getAttribute('data-week')))));
+  document.querySelectorAll('#grid .weekNumber').forEach(btn => btn.addEventListener('click', function(e){ e.stopPropagation(); toggleAllowWeek(e, Number(this.getAttribute('data-week'))); }));
+}
+
+function toggleCell(s,w){ gridState[s][w] = !gridState[s][w]; buildGrid(); }
+function toggleSubject(s){ const anyOn = weeks.some(w => gridState[s][w]); weeks.forEach(w => gridState[s][w] = !anyOn); buildGrid(); }
+function toggleWeek(w){ const anyOn = subjects.some(s => gridState[s][w]); subjects.forEach(s => gridState[s][w] = !anyOn); buildGrid(); }
+
+function toggleAllowWeek(e, w) {
+  const maxWeek = getMaxWeek();
+  const blockedIdx = blockedWeeks.indexOf(w);
+  if (blockedIdx !== -1) blockedWeeks.splice(blockedIdx, 1);
+  else {
+    const allowedIdx = allowedWeeks.indexOf(w);
+    if (allowedIdx !== -1) allowedWeeks.splice(allowedIdx, 1);
+    else (w > maxWeek) ? allowedWeeks.push(w) : blockedWeeks.push(w);
+  }
+  saveToDevice(); buildGrid();
+}
+
+function updateVh() { document.documentElement.style.setProperty('--vh', (window.innerHeight * 0.01) + 'px'); }
+window.addEventListener('resize', updateVh);
+updateVh();
+
+function bindHoldButton(id, actionFn){
+  const el = document.getElementById(id);
+  let holdTimeout, holdInterval;
+  const start = (e) => { e.preventDefault(); actionFn(); holdTimeout = setTimeout(()=> holdInterval = setInterval(actionFn, 110), 350); };
+  const stop = () => { clearTimeout(holdTimeout); clearInterval(holdInterval); };
+  el.addEventListener('mousedown', start); el.addEventListener('mouseup', stop); el.addEventListener('mouseleave', stop);
+  el.addEventListener('touchstart', start, {passive:false}); el.addEventListener('touchend', stop);
+}
+bindHoldButton('increaseWeek', increaseWeek);
+bindHoldButton('decreaseWeek', decreaseWeek);
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js')
+      .then(reg => console.log('Service Worker registered!'))
+      .catch(err => console.log('Service Worker failed:', err));
+  });
+}
+  
+if (navigator.vibrate) {
+  navigator.vibrate(40); // A tiny "thump"
+}
+  
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js').then(reg => {
+      // Check for updates every time the app is opened
+      reg.update(); 
+    });
+  });
+}
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./service-worker.js').then(reg => {
+    reg.addEventListener('updatefound', () => {
+      const newWorker = reg.installing;
+      newWorker.addEventListener('statechange', () => {
+        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+          // This fires when the new version is ready. 
+          // You can show a "New Update Available" toast or just auto-reload.
+          if (confirm("New version available! Update now?")) {
+            window.location.reload();
+          }
+        }
+      });
+    });
+  });
+}
+
+fetch('manifest.json') 
+  .then(response => {
+    if (!response.ok) throw new Error("Manifest not found");
+    return response.json();
+  })
+  .then(manifest => {
+    const versionElement = document.getElementById('app-version');
+    if (versionElement && manifest.version) {
+      versionElement.innerText = manifest.version;
+    }
+  })
+  .catch(err => {
+    // If GitHub is down or you're offline, show a fallback so it's not "Loading..."
+    console.log("Manifest fetch failed, using fallback.");
+    document.getElementById('app-version').innerText = "not available";
+  });
+</script>
+</body>
+</html>
