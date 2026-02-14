@@ -52,9 +52,10 @@ body {
 
 h1 {
   font-weight: 800;
-  font-size: 1.8rem;
-  color: var(--text-main);
-  margin: 10px 0 20px;
+  font-size: 2rem;
+  color: var(--secondary);
+  margin: 10px 0 5px;
+  text-shadow: 1px 1px 0px #fff;
 }
 
 /* --- THE DISPLAY CARDS --- */
@@ -63,29 +64,32 @@ h1 {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-radius: var(--radius);
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  border: 2px solid rgba(255, 255, 255, 0.4);
   box-shadow: var(--shadow);
+  overflow: hidden;
+  flex-shrink: 0;      /* Prevents height squishing */
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 #prompt {
+  align-items: center;
+  display: flex; 
   font-size: 19px; 
   font-weight: 600; 
   margin: 12px auto; 
   padding: 18px;
   min-height: 80px; 
-  display: flex; 
-  align-items: center; 
   justify-content: center;
-  background: var(--card-bg);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-radius: var(--radius);
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  border: 2px solid rgba(74, 144, 226, 0.2);
+  border-color: rgba(74, 144, 226, 0.4);
   box-shadow: var(--shadow);
   width: 95%;          /* Forces it to take up horizontal space */
   max-width: 600px !important; 
   box-sizing: border-box;
-  flex-shrink: 0;      /* Prevents height squishing */
 }
 
 /* --- NEW UNIFIED ANSWER BOX --- */
@@ -108,14 +112,16 @@ h1 {
 #toggleAnswer {
   width: 100%;
   padding: 18px;
-  background: transparent;
+  background: rgba(74, 144, 226, 0.05); /* Very light blue background */
   color: var(--secondary);
   border: none;
+  border-bottom: 1px solid rgba(74, 144, 226, 0.1);
   font-family: inherit;
   font-size: 16px;
   font-weight: 800;
   text-transform: uppercase;
   cursor: pointer;
+  transition: background 0.2s;
 }
 
 #answerContent {
@@ -137,20 +143,64 @@ h1 {
 
 #answerContainer.open {
   border: 2px solid var(--secondary);
+  transform: scale(1.01);
+}
+
+.reel div {
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-main);
+  /* Gentle gradient for a "physical" slot feel */
+  background: linear-gradient(to bottom, #fff, #f0f7ff, #fff);
 }
 
 /* Adjustments for tight spacing */
 .rollerBox { margin: 15px 0; }
 #result { margin: 5px auto; }
 
-/* --- THE SLOT MACHINE --- */
-.rollerBox { display: flex; justify-content: center; gap: 15px; margin: 25px 0; }
-.slot { width: 150px; height: 80px; overflow: hidden; border: 3px solid #fff; position: relative; }
-.slot::after {
-  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 50%;
-  background: linear-gradient(rgba(255,255,255,0.5), transparent); pointer-events: none;
+/* --- THE SLOT MACHINE (POLISHED) --- */
+.rollerBox { 
+  display: flex; 
+  justify-content: center; 
+  gap: 15px; 
+  margin: 20px 0; 
 }
-.reel div { height: 80px; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 700; color: var(--text-main); }
+
+.slot { 
+  width: 150px; 
+  height: 80px; 
+  overflow: hidden; 
+  /* Changed to match the blue theme */
+  border: 3px solid rgba(74, 144, 226, 0.3); 
+  border-radius: var(--radius);
+  background: var(--card-bg);
+  position: relative; 
+}
+
+.slot::after {
+  content: ""; 
+  position: absolute; 
+  top: 0; left: 0; right: 0; 
+  height: 100%;
+  /* Added a subtle shadow at top and bottom to look like a physical roller */
+  background: linear-gradient(rgba(0,0,0,0.05) 0%, transparent 15%, transparent 85%, rgba(0,0,0,0.05) 100%); 
+  pointer-events: none;
+}
+
+.reel div { 
+  height: 80px; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  font-size: 20px; /* Slightly smaller to ensure icons + text fit */
+  font-weight: 700; 
+  color: var(--text-main);
+  background: linear-gradient(to bottom, #fff, #f0f7ff, #fff);
+}
 
 /* --- BUTTONS --- */
 /* --- NEW FLOATING SPIN BUTTON --- */
@@ -226,6 +276,10 @@ h1 {
 /* Add some padding to the body so the button doesn't cover content at the very bottom */
 body {
   padding-bottom: 80px; 
+}
+
+#toggleAnswer:hover {
+  background: rgba(74, 144, 226, 0.1);
 }
 
 #toggleAnswer:active {
