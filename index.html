@@ -14,40 +14,46 @@
 
   <title>CC Spinner</title>
 <style>
+/* ==========================================================================
+   1. VARIABLES & FONTS
+   ========================================================================== */
 @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700;800&display=swap');
 
 :root {
   --primary: #ff6f61;
   --primary-dark: #d9534f;
   --secondary: #4a90e2;
-  --bg: #f8fafc;
+  --bg-gradient: radial-gradient(circle at top, #f0f7ff, #e2e8f0);
   --card-bg: rgba(255, 255, 255, 0.9);
   --text-main: #1e293b;
   --text-muted: #64748b;
   --radius: 24px;
   --shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  /* Consistent border style for all "Glass" elements */
+  --glass-border: 2px solid rgba(74, 144, 226, 0.2);
 }
 
+/* ==========================================================================
+   2. BASE SETUP
+   ========================================================================== */
 html, body {
   height: 100%;
   margin: 0;
   padding: 0;
-  overflow: hidden; /* This locks the screen from scrolling */
-  touch-action: none; /* Prevents "pull-to-refresh" and accidental zooms */
+  overflow: hidden;
+  touch-action: none;
 }
 
 body {
   font-family: 'Quicksand', sans-serif;
-  background: radial-gradient(circle at top, #f0f7ff, #e2e8f0);
+  background: var(--bg-gradient);
   background-attachment: fixed;
   color: var(--text-main);
   text-align: center;
-  
-  /* Create a vertical flex container */
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
-  padding: env(safe-area-inset-top, 20px) 15px 80px 15px; /* Bottom padding for editBtn */
+  padding: env(safe-area-inset-top, 20px) 15px 80px 15px;
 }
 
 h1 {
@@ -58,92 +64,38 @@ h1 {
   text-shadow: 1px 1px 0px #fff;
 }
 
-/* --- THE DISPLAY CARDS --- */
-#result, #prompt, #answer, .slot {
-  background: var(--card-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-radius: var(--radius);
-  border: 2px solid rgba(255, 255, 255, 0.4);
-  box-shadow: var(--shadow);
-  overflow: hidden;
-  flex-shrink: 0;      /* Prevents height squishing */
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-#prompt {
-  align-items: center;
-  display: flex; 
-  font-size: 19px; 
-  font-weight: 600; 
-  margin: 12px auto; 
-  padding: 18px;
-  min-height: 80px; 
+/* ==========================================================================
+   3. COMPONENTS (SLOT MACHINE)
+   ========================================================================== */
+.rollerBox {
+  display: flex;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-radius: var(--radius);
-  border: 2px solid rgba(74, 144, 226, 0.2);
-  border-color: rgba(74, 144, 226, 0.4);
-  box-shadow: var(--shadow);
-  width: 95%;          /* Forces it to take up horizontal space */
-  max-width: 600px !important; 
-  box-sizing: border-box;
+  gap: 15px;
+  margin: 20px 0;
 }
 
-/* --- NEW UNIFIED ANSWER BOX --- */
-#answerContainer {
-  width: 95%;
-  max-width: 600px !important;
-  margin: 12px auto;
-  box-sizing: border-box;
-  background: var(--card-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-radius: var(--radius);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  box-shadow: var(--shadow);
+.slot {
+  width: 150px;
+  height: 80px;
   overflow: hidden;
-  flex-shrink: 0;
-  transition: all 0.3s ease;
+  border: 3px solid rgba(74, 144, 226, 0.3);
+  border-radius: var(--radius);
+  background: var(--card-bg);
+  position: relative;
+  box-shadow: var(--shadow);
 }
 
-#toggleAnswer {
-  width: 100%;
-  padding: 18px;
-  background: rgba(74, 144, 226, 0.05); /* Very light blue background */
-  color: var(--secondary);
-  border: none;
-  border-bottom: 1px solid rgba(74, 144, 226, 0.1);
-  font-family: inherit;
-  font-size: 16px;
-  font-weight: 800;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-#answerContent {
-  padding: 0 20px;
-  max-height: 0px; /* Hidden by default */
-  overflow-y: auto;
-  transition: all 0.3s ease;
-  color: var(--text-muted);
-  font-size: 17px;
-  white-space: pre-wrap; /* This ensures long text wraps correctly */
-  text-align: center;
-}
-
-/* When active, show the content */
-#answerContainer.open #answerContent {
-  max-height: 450px; /* Adjust based on typical answer length */
-  padding: 0 20px 20px 20px;
-}
-
-#answerContainer.open {
-  border: 2px solid var(--secondary);
-  transform: scale(1.01);
+.slot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    rgba(0,0,0,0.05) 0%, 
+    transparent 15%, 
+    transparent 85%, 
+    rgba(0,0,0,0.05) 100%
+  );
+  pointer-events: none;
 }
 
 .reel div {
@@ -154,81 +106,109 @@ h1 {
   font-size: 22px;
   font-weight: 700;
   color: var(--text-main);
-  /* Gentle gradient for a "physical" slot feel */
   background: linear-gradient(to bottom, #fff, #f0f7ff, #fff);
 }
 
-/* Adjustments for tight spacing */
-.rollerBox { margin: 15px 0; }
-#result { margin: 5px auto; }
-
-/* --- THE SLOT MACHINE (POLISHED) --- */
-.rollerBox { 
-  display: flex; 
-  justify-content: center; 
-  gap: 15px; 
-  margin: 20px 0; 
-}
-
-.slot { 
-  width: 150px; 
-  height: 80px; 
-  overflow: hidden; 
-  /* Changed to match the blue theme */
-  border: 3px solid rgba(74, 144, 226, 0.3); 
-  border-radius: var(--radius);
+/* ==========================================================================
+   4. CARDS (PROMPT & ANSWER)
+   ========================================================================== */
+#prompt, #answerContainer {
+  width: 95%;
+  max-width: 600px !important;
+  margin: 12px auto;
+  box-sizing: border-box;
   background: var(--card-bg);
-  position: relative; 
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: var(--radius);
+  border: var(--glass-border);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  flex-shrink: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.slot::after {
-  content: ""; 
-  position: absolute; 
-  top: 0; left: 0; right: 0; 
-  height: 100%;
-  /* Added a subtle shadow at top and bottom to look like a physical roller */
-  background: linear-gradient(rgba(0,0,0,0.05) 0%, transparent 15%, transparent 85%, rgba(0,0,0,0.05) 100%); 
-  pointer-events: none;
+#prompt {
+  font-size: 19px;
+  font-weight: 600;
+  padding: 18px;
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.reel div { 
-  height: 80px; 
-  display: flex; 
-  align-items: center; 
-  justify-content: center; 
-  font-size: 20px; /* Slightly smaller to ensure icons + text fit */
-  font-weight: 700; 
-  color: var(--text-main);
-  background: linear-gradient(to bottom, #fff, #f0f7ff, #fff);
+#answerContainer.open {
+  border-color: var(--secondary);
+  transform: scale(1.01);
 }
 
-/* --- BUTTONS --- */
-/* --- NEW FLOATING SPIN BUTTON --- */
+/* --- Toggle Answer Button --- */
+#toggleAnswer {
+  width: 100%;
+  padding: 18px;
+  background: transparent;
+  color: var(--secondary);
+  border: none;
+  border-top: 1px solid rgba(74, 144, 226, 0.15); /* Subtle divider */
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 800;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+
+#toggleAnswer:active {
+  background: rgba(74, 144, 226, 0.05);
+  transform: scale(0.98);
+}
+
+#toggleAnswer:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+#answerContent {
+  padding: 0 20px;
+  max-height: 0px;
+  overflow-y: auto;
+  transition: all 0.3s ease;
+  color: var(--text-muted);
+  font-size: 17px;
+  white-space: pre-wrap;
+  text-align: center;
+}
+
+#answerContainer.open #answerContent {
+  max-height: 450px;
+  padding: 0 20px 20px 20px;
+}
+
+/* ==========================================================================
+   5. FLOATING & FIXED BUTTONS
+   ========================================================================== */
 #spinBtn {
   position: fixed;
-  bottom: 100px; /* Sits above the "Edit Lesson Grid" bar */
+  bottom: 100px;
   right: 20px;
   width: 85px;
   height: 85px;
-  border-radius: 50%; /* Perfect circle */
-  
+  border-radius: 50%;
   background: var(--primary);
   color: #fff;
   border: none;
   border-bottom: 4px solid var(--primary-dark);
-  
   font-size: 18px;
   font-weight: 800;
   text-transform: uppercase;
-  
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: 0 10px 25px rgba(255, 111, 97, 0.4);
   cursor: pointer;
-  z-index: 600; /* Higher than editBtn */
+  z-index: 600;
   transition: all 0.1s ease;
-  padding: 0; /* Clear default button padding */
 }
 
 #spinBtn:active {
@@ -248,172 +228,45 @@ h1 {
   bottom: 0;
   left: 0;
   right: 0;
-  
-  /* Styling to make it look like a nav bar */
   background: var(--card-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   color: var(--secondary);
-  
   border: none;
   border-top: 1px solid rgba(0,0,0,0.1);
-  border-radius: 0; /* Flat against the bottom */
-  
   padding: 15px 0;
-  margin: 0;
   width: 100%;
   font-weight: 700;
   font-size: 16px;
-  
-  /* Keep it above everything else */
   z-index: 500;
-  
-  /* Support for iPhone "Home Bar" spacing */
   padding-bottom: calc(15px + env(safe-area-inset-bottom, 0px));
   cursor: pointer;
 }
 
-/* Add some padding to the body so the button doesn't cover content at the very bottom */
-body {
-  padding-bottom: 80px; 
-}
-
-#toggleAnswer:hover {
-  background: rgba(74, 144, 226, 0.1);
-}
-
-#toggleAnswer:active {
-  transform: scale(0.96); /* Visual "press" feedback */
-  background: var(--secondary);
-  color: #fff;
-}
-
-#toggleAnswer:disabled {
-  opacity: 0.3;
-  border-color: #cbd5e1;
-  color: #94a3b8;
-  cursor: not-allowed;
-  transform: none;
-}
-
-/* --- GRID OVERLAY (RESTORED TO ORIGINAL BEHAVIOR) --- */
+/* ==========================================================================
+   6. GRID & OVERLAYS
+   ========================================================================== */
 #gridOverlay {
-  display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.35);
-  z-index: 1000; justify-content: flex-start; align-items: stretch;
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  z-index: 1000;
+  justify-content: flex-start;
+  align-items: stretch;
 }
 
 #gridContent {
-  width: 100vw; height: calc(var(--vh, 1vh) * 100);
-  display: flex; flex-direction: column; background: #fff;
-  overflow: hidden; padding-top: env(safe-area-inset-top, 44px);
-}
-
-.gridHeader {
-  display: flex; align-items: center; padding: 12px 20px;
-  background: #fff; border-bottom: 2px solid #eee;
-}
-
-.gridHeader h2 { flex: 1; text-align: center; margin: 0; padding-right: 45px; font-size: 1.4rem; }
-
-.closeGridBtn {
-  font-size: 1.8rem; color: #fff; background: #4a90e2; border-radius: 50%;
-  width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;
-  border: none; cursor: pointer; flex-shrink: 0;
-}
-
-/* --- TABLE FIXES (RESTORING COMPACT LOOK) --- */
-#grid {
-  padding: 12px 6px 32px 6px; overflow-y: auto; overflow-x: hidden;
-  touch-action: pan-y; width: 100%; box-sizing: border-box; flex: 1;
-}
-
-#grid table {
-  table-layout: fixed; width: 100%; border-collapse: collapse; background: white;
-}
-
-#grid th, #grid td {
-  border: 1px solid #aaa; padding: 0; height: 40px; text-align: center;
-  white-space: nowrap; font-size: 14px;
-}
-
-#grid th.subjectHeader {
-  height: 100px;
-  background: #ffd966;
-  padding: 0;
-  margin: 0;
-  vertical-align: middle;
-  text-align: center;
-  overflow: hidden;
-}
-
-#grid th.subjectHeader span {
-  display: inline-block;
-  /* Rotate from the center of the word */
-  transform: rotate(-90deg) translateX(-30px); 
-  
-  /* This prevents the word from pushing the row height and pulls it 
-     back up into the center of the orange cell */
-  white-space: nowrap;
-  line-height: 1;
-  width: 20px; 
-  
-  /* Font Tweaks */
-  font-weight: 700;
-  font-size: 13px;
-  color: #000;
-  
-  /* Force it to stay inside the cell boundaries */
-  pointer-events: none;
-}
-  
-#resetConfirmOverlay {
-  position: fixed;
-  inset: 0; /* Shorthand for top, bottom, left, right: 0 */
-  display: none;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0,0,0,0.5); /* Slightly darker for better focus */
-  z-index: 3000; /* Higher than the Grid Overlay */
-}
-
-#resetConfirmOverlay .confirmBox {
+  width: 100vw;
+  height: calc(var(--vh, 1vh) * 100);
+  display: flex;
+  flex-direction: column;
   background: #fff;
-  padding: 25px;
-  border-radius: 15px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-  width: 85%;
-  max-width: 320px;
-  text-align: center;
-}
-.week-header { background: #cce7ff; width: 56px; }
-
-.weekNumber {
-  display: flex; align-items: center; justify-content: center;
-  width: 100%; height: 100%; border: none; background: #fff;
-  font-weight: 700; font-size: 16px; color: #0b2540; cursor: pointer;
+  overflow: hidden;
+  padding-top: env(safe-area-inset-top, 44px);
 }
 
-.weekNumber.active { background: #22c55e; color: #fff; }
-.completed { background: #ccc !important; color: #666; }
-.override { background: #d4f0d8; }
-.blocked { background: #fdecea; color: #5a2a28; }
-
-.maxWeekControl {
-  display: inline-flex; align-items: center; gap: 8px; background: #fff8d6;
-  padding: 8px 10px; border-radius: 10px; border: 1px solid #f3d08a;
-}
-.maxWeekBtn {
-  width: 34px; height: 34px; background: #ffd37a; border: 1px solid #e6a83a;
-  border-radius: 8px; cursor: pointer; font-size: 18px;
-}
-
-.version-tag {
-  position: absolute; top: env(safe-area-inset-top, 10px);
-  right: 15px; font-size: 10px; color: var(--text-muted); opacity: 0.5;
-}
-
-.confirmBox { background: #fff; border-radius: 8px; padding: 20px; text-align: center; }
-
+/* ... (Keep your existing Grid table and confirmBox styles below) ... */
 </style>
 </head>
 <body>
