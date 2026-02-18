@@ -200,21 +200,16 @@ h1 {
    ========================================================================== */
 
 .control-row {
+  position: fixed;
+  bottom: 30px;
+  right: 20px;
   display: flex;
-  gap: 12px;
-  width: 95%;
-  max-width: 600px;
-  margin: 15px auto;
-  position: relative; 
-  z-index: 10;
+  align-items: center;
+  gap: 15px;
+  z-index: 600;
 }
 
 #spinBtn {
-  flex: 3;
-  padding: 16px;
-  position: fixed;
-  bottom: 100px; 
-  right: 20px;
   width: 85px;
   height: 85px;
   border-radius: 50%;
@@ -230,7 +225,6 @@ h1 {
   justify-content: center;
   box-shadow: 0 10px 25px rgba(255, 111, 97, 0.4);
   cursor: pointer;
-  z-index: 600; 
   transition: all 0.1s ease;
 }
 
@@ -247,27 +241,31 @@ h1 {
 }
 
 #undoBtn {
-  flex: 1;
-  padding: 10px 20px;
-  background: rgba(100, 116, 139, 0.1);
-  border: 2px solid rgba(100, 116, 139, 0.2);
-  color: #64748b;
-  border-radius: var(--radius);
-  font-weight: 700;
-  text-transform: uppercase;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background: white;
+  border: 2px solid var(--text-muted);
+  color: var(--text-muted);
+  font-size: 24px; /* Size of the arrow */
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
+  box-shadow: var(--shadow);
   transition: all 0.2s;
-}
-
-#undoBtn:not(:disabled):active {
-  background: #f1f5f9;
-  transform: translateY(2px);
+  padding: 0;
+  line-height: 0;
 }
 
 #undoBtn:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-  filter: grayscale(1);
+  opacity: 0; /* Hidden when not available */
+  pointer-events: none;
+}
+
+#undoBtn:not(:disabled):active {
+  transform: scale(0.9);
+  background: #f1f5f9;
 }
 
 /* Bottom Nav / Edit Button */
@@ -452,7 +450,7 @@ h1 {
 
 <div class="control-row">
   <button id="spinBtn" onclick="spinBoth()">Spin</button>
-  <button id="undoBtn" onclick="undoLastSpin()" disabled>Undo</button>
+  <button id="undoBtn" onclick="undoLastSpin()" disabled>&#10548;</button>
 </div>
 
 <div id="resetConfirmOverlay">
