@@ -199,8 +199,19 @@ h1 {
    5. BUTTONS (Actions)
    ========================================================================== */
 
-/* Floating Spin Button */
+.control-row {
+  position: fixed;
+  bottom: env(safe-area-inset-bottom, 20px);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 15px;
+  z-index: 600; 
+}
+
 #spinBtn {
+  flex: 3;
+  padding: 16px;
   position: fixed;
   bottom: 100px; 
   right: 20px;
@@ -221,7 +232,6 @@ h1 {
   cursor: pointer;
   z-index: 600; 
   transition: all 0.1s ease;
-  padding: 0;
 }
 
 #spinBtn:active {
@@ -234,6 +244,30 @@ h1 {
   border-bottom-color: #94a3b8;
   box-shadow: none;
   opacity: 0.7;
+}
+
+#undoBtn {
+  flex: 1;
+  padding: 10px 20px;
+  background: rgba(100, 116, 139, 0.1);
+  border: 2px solid rgba(100, 116, 139, 0.2);
+  color: #64748b;
+  border-radius: var(--radius);
+  font-weight: 700;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+#undoBtn:not(:disabled):active {
+  background: #f1f5f9;
+  transform: translateY(2px);
+}
+
+#undoBtn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  filter: grayscale(1);
 }
 
 /* Bottom Nav / Edit Button */
@@ -269,29 +303,6 @@ h1 {
   color: #94a3b8;
   cursor: not-allowed;
   transform: none;
-}
-
-#undoBtn {
-  padding: 10px 20px;
-  background: rgba(100, 116, 139, 0.1);
-  border: 2px solid rgba(100, 116, 139, 0.2);
-  color: #64748b;
-  border-radius: var(--radius);
-  font-weight: 700;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-#undoBtn:not(:disabled):active {
-  background: #f1f5f9;
-  transform: translateY(2px);
-}
-
-#undoBtn:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-  filter: grayscale(1);
 }
 
 /* ==========================================================================
@@ -439,9 +450,10 @@ h1 {
 
 <div class="version-tag">v<span id="app-version">1.0.4</span></div>
 
-<button id="undoBtn" onclick="undoLastSpin()" disabled>Undo</button>
-
-<button id="spinBtn" onclick="spinBoth()">Spin</button>
+<div class="control-row">
+  <button id="spinBtn" onclick="spinBoth()">Spin</button>
+  <button id="undoBtn" onclick="undoLastSpin()" disabled>Undo</button>
+</div>
 
 <div id="resetConfirmOverlay">
   <div class="confirmBox">
@@ -811,12 +823,16 @@ function spinBoth() {
     document.getElementById('prompt').textContent = lesson.p;
     document.getElementById('answerContent').textContent = lesson.a;
     
-    lastSpun = { subject, week }; // Record what we just did
+    lastSpun = {
+      subject: subject
+      week: week,
+      prompt: lesson.p,
+      answer: lesson.a
+    };
     document.getElementById('undoBtn').disabled = false; // Enable the button
     
     toggleBtn.disabled = false;
     gridState[subject][week] = false;
-    
     saveToDevice();
     buildGrid();
     isSpinning = false;
@@ -869,22 +885,24 @@ function undoLastSpin() {
   if (!lastSpun) return;
   if (navigator.vibrate) navigator.vibrate(30);
 
-  // Restore the question to the grid
+  // 1. Put it back in the grid
   gridState[lastSpun.subject][lastSpun.week] = true;
   
-  // Clean up UI
-  document.getElementById('prompt').textContent = "Spin Restored!";
-  document.getElementById('answerContent').textContent = "";
-  document.getElementById('answerContainer').classList.remove('open');
-  document.getElementById('toggleAnswer').disabled = true;
+  // 2. Keep the prompt displayed but reset the UI state
+  document.getElementById('prompt').textContent = "Restored: " + lastSpun.prompt;
+  document.getElementById('answerContent').textContent = lastSpun.answer;
   
-  // Disable button so they can't undo the same thing twice
+  // 3. Close drawer and disable Undo
+  document.getElementById('answerContainer').classList.remove('open');
+  document.getElementById('toggleAnswer').textContent = '▼ Show Answer ▼';
+  
   lastSpun = null;
   document.getElementById('undoBtn').disabled = true;
 
   saveToDevice();
   buildGrid();
 }
+
 /* ==========================================================================
    4. AUDIO & HAPTICS HELPERS
    ========================================================================== */
