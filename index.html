@@ -204,8 +204,9 @@ h1 {
   bottom: 100px;
   right: 20px;
   display: flex;
+  flex-direction: row; /* Ensures Undo is Left, Spin is Right */
   align-items: center;
-  gap: 12px;
+  gap: 15px;
   z-index: 600;
 }
 
@@ -244,24 +245,23 @@ h1 {
   width: 50px;
   height: 50px;
   border-radius: 50%;
-  background: #fff;
-  border: 2px solid rgba(100, 116, 139, 0.3);
-  color: var(--text-muted);
-  font-size: 28px; /* Size of the arrow */
+  background: white;
+  color: var(--secondary);
+  border: 2px solid rgba(74, 144, 226, 0.3);
+  font-size: 26px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   box-shadow: var(--shadow);
-  transition: all 0.2s;
-  padding: 0;
-  padding-bottom: 4px;
+  transition: all 0.2s ease;
+  padding: 0 4px 4px 0; /* Slight nudge to center the ⤾ */
 }
 
 #undoBtn:disabled {
-  opacity: 0; /* Hidden when not available */
+  opacity: 0;
   pointer-events: none;
-  transform: scale(0.8);
+  transform: translateX(30px) scale(0.5); /* Hide behind spin button */
 }
 
 #undoBtn:not(:disabled):active {
@@ -494,7 +494,8 @@ h1 {
    ========================================================================== */
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 let isSpinning = false;
-let lastSpun = null; // Memory for the undo button
+let lastSpun = null; // The one we just spun (the "mistake")
+let previousSpun = null;  // The one BEFORE that (the "rewind destination")
 
 const subjects = ["Bible", "English", "Geography", "History", "Latin", "Math", "Science", "Timeline"];
 const subjectIcons = {
@@ -819,15 +820,18 @@ function spinBoth() {
     if (navigator.vibrate) navigator.vibrate([40, 30, 40]);
     
     const lesson = lessonData[subject][week];
-    document.getElementById('prompt').textContent = lesson.p;
-    document.getElementById('answerContent').textContent = lesson.a;
-    
+
+    previousSpun = lastSpun ? { ...lastSpun } : null; // Store previous state for potential undo  
+
     lastSpun = {
       subject: subject,
       week: week,
       prompt: lesson.p,
       answer: lesson.a
     };
+
+    document.getElementById('prompt').textContent = lesson.p;
+    document.getElementById('answerContent').textContent = lesson.a;
     document.getElementById('undoBtn').disabled = false; // Enable the button
     
     toggleBtn.disabled = false;
@@ -881,24 +885,32 @@ function toggleAnswer() {
 }
 
 function undoLastSpin() {
-  if (!lastSpun) return;
+    if (!lastSpun) return;
 
-  // 1. Put it back in the grid
-  gridState[lastSpun.subject][lastSpun.week] = true;
-  
-  // 2. Keep the prompt displayed but reset the UI state
-  document.getElementById('prompt').textContent = "Restored: " + lastSpun.prompt;
-  document.getElementById('answerContent').textContent = lastSpun.answer;
-  
-  // 3. Close drawer and disable Undo
-  document.getElementById('answerContainer').classList.remove('open');
-  document.getElementById('toggleAnswer').textContent = '▼ Show Answer ▼';
-  
-  lastSpun = null;
-  document.getElementById('undoBtn').disabled = true;
+    // 1. Put the "mistake" back on the grid
+    gridState[lastSpun.subject][lastSpun.week] = true;
 
-  saveToDevice();
-  buildGrid();
+    // 2. Rewind the UI to the previous question (if it exists)
+    if (previousSpun) {
+        document.getElementById('prompt').textContent = previousSpun.prompt;
+        document.getElementById('answerContent').textContent = previousSpun.answer;
+        // Keep lastSpun as previousSpun so we don't break the chain
+        lastSpun = { ...previousSpun }; 
+        previousSpun = null; // Clear history until next spin
+    } else {
+        // If there was no previous question, just clear the prompt
+        document.getElementById('prompt').textContent = "Spin to start!";
+        document.getElementById('answerContent').textContent = "";
+        lastSpun = null;
+    }
+
+    // 3. Reset UI state
+    document.getElementById('answerContainer').classList.remove('open');
+    document.getElementById('undoBtn').disabled = true;
+    
+    if (navigator.vibrate) navigator.vibrate(40);
+    saveToDevice();
+    buildGrid();
 }
 
 /* ==========================================================================
