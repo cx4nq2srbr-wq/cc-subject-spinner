@@ -271,6 +271,29 @@ h1 {
   transform: none;
 }
 
+#undoBtn {
+  padding: 10px 20px;
+  background: rgba(100, 116, 139, 0.1);
+  border: 2px solid rgba(100, 116, 139, 0.2);
+  color: #64748b;
+  border-radius: var(--radius);
+  font-weight: 700;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+#undoBtn:not(:disabled):active {
+  background: #f1f5f9;
+  transform: translateY(2px);
+}
+
+#undoBtn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  filter: grayscale(1);
+}
+
 /* ==========================================================================
    6. GRID OVERLAY & EDITING
    ========================================================================== */
@@ -416,6 +439,8 @@ h1 {
 
 <div class="version-tag">v<span id="app-version">1.0.4</span></div>
 
+<button id="undoBtn" onclick="undoLastSpin()" disabled>Undo</button>
+
 <button id="spinBtn" onclick="spinBoth()">Spin</button>
 
 <div id="resetConfirmOverlay">
@@ -458,6 +483,7 @@ h1 {
    ========================================================================== */
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 let isSpinning = false;
+let lastSpun = null; // Memory for the undo button
 
 const subjects = ["Bible", "English", "Geography", "History", "Latin", "Math", "Science", "Timeline"];
 const subjectIcons = {
@@ -785,6 +811,9 @@ function spinBoth() {
     document.getElementById('prompt').textContent = lesson.p;
     document.getElementById('answerContent').textContent = lesson.a;
     
+    lastSpun = { subject, week }; // Record what we just did
+    document.getElementById('undoBtn').disabled = false; // Enable the button
+    
     toggleBtn.disabled = false;
     gridState[subject][week] = false;
     
@@ -836,6 +865,26 @@ function toggleAnswer() {
   btn.textContent = container.classList.contains('open') ? '▲ Hide Answer ▲' : '▼ Show Answer ▼';
 }
 
+function undoLastSpin() {
+  if (!lastSpun) return;
+  if (navigator.vibrate) navigator.vibrate(30);
+
+  // Restore the question to the grid
+  gridState[lastSpun.subject][lastSpun.week] = true;
+  
+  // Clean up UI
+  document.getElementById('prompt').textContent = "Spin Restored!";
+  document.getElementById('answerContent').textContent = "";
+  document.getElementById('answerContainer').classList.remove('open');
+  document.getElementById('toggleAnswer').disabled = true;
+  
+  // Disable button so they can't undo the same thing twice
+  lastSpun = null;
+  document.getElementById('undoBtn').disabled = true;
+
+  saveToDevice();
+  buildGrid();
+}
 /* ==========================================================================
    4. AUDIO & HAPTICS HELPERS
    ========================================================================== */
