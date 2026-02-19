@@ -229,40 +229,41 @@ h1 {
 }
 
 #spinBtn, #undoBtn {
-  width: 90px;  /* Increased for better thumb reach */
+  width: 90px; 
   height: 90px;
   border: none;
-  font-family: 'Quicksand', sans-serif;
-  font-size: 18px;
-  font-weight: 800;
-  color: #fff;
   cursor: pointer;
   pointer-events: auto;
   -webkit-tap-highlight-color: transparent;
   display: flex;
   transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  padding: 0; /* Remove padding as SVG handles placement */
+  overflow: visible;
 }
 
-/* SPIN BUTTON - Bottom Right Corner */
+#spinBtn svg, #undoBtn svg {
+  width: 100%;
+  height: 100%;
+}
+
+#spinBtn text, #undoBtn text {
+  fill: white;
+  font-family: 'Quicksand', sans-serif;
+  font-size: 14px; /* SVG font size scales differently */
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
 #spinBtn {
   background: var(--primary);
   border-radius: 100% 0 0 0;
-  align-items: flex-end;
-  justify-content: flex-end;
-  text-transform: uppercase;
-  padding: 0 15px 12px 0; /* Adjusted for "Spin" text */
-  box-shadow: -2px -2px 10px rgba(0,0,0,0.1);
   transform-origin: bottom right;
 }
 
-/* UNDO BUTTON - Bottom Left Corner */
 #undoBtn {
   background: var(--secondary);
   border-radius: 0 100% 0 0;
-  align-items: flex-end;
-  justify-content: flex-start;
-  padding: 0 0 12px 12px; /* Adjusted for "undo" text */
-  box-shadow: 2px -2px 10px rgba(0,0,0,0.1);
   transform-origin: bottom left;
 }
 
@@ -453,8 +454,23 @@ h1 {
 <div class="version-tag">v<span id="app-version">1.0.4</span></div>
 
 <div class="control-row">
-  <button id="undoBtn" onclick="undoLastSpin()" disabled>undo</button>
-  <button id="spinBtn" onclick="spinBoth()">Spin</button>
+  <button id="undoBtn" onclick="undoLastSpin()" disabled>
+    <svg viewBox="0 0 100 100">
+      <path id="undoCurve" d="M 20,80 A 60,60 0 0 1 80,20" fill="transparent" />
+      <text>
+        <textPath xlink:href="#undoCurve" startOffset="20%">undo</textPath>
+      </text>
+    </svg>
+  </button>
+
+  <button id="spinBtn" onclick="spinBoth()">
+    <svg viewBox="0 0 100 100">
+      <path id="spinCurve" d="M 20,80 A 60,60 0 0 0 80,20" fill="transparent" />
+      <text>
+        <textPath xlink:href="#spinCurve" startOffset="50%" text-anchor="middle">SPIN</textPath>
+      </text>
+    </svg>
+  </button>
 </div>
 
 <div id="resetConfirmOverlay">
