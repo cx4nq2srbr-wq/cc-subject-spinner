@@ -922,27 +922,53 @@ function undoLastSpin() {
     // 1. Put the "mistake" back on the grid
     gridState[lastSpun.subject][lastSpun.week] = true;
 
-    // 2. Rewind the UI to the previous question (if it exists)
+    // 2. Rewind the UI
     if (previousSpun) {
-      const subReel = document.getElementById('subjectReel');
-      const weekReel = document.getElementById('weekReel');
+        // We must REBUILD the reels with the standard lists so the index matches the physical divs
+        const subReel = document.getElementById('subjectReel');
+        const weekReel = document.getElementById('weekReel');
 
-      subReel.style.transition = "transform 0.5s cubic-bezier(0.15, 0, 0.15, 1)";
-      weekReel.style.transition = "transform 0.5s cubic-bezier(0.15, 0, 0.15, 1)";
+        // Re-populate Subject Reel with standard list
+        subReel.innerHTML = "";
+        subjects.forEach(s => {
+            const div = document.createElement("div");
+            div.textContent = `${subjectIcons[s]} ${s}`;
+            subReel.appendChild(div);
+        });
 
-      subReel.style.transform = `translateY(-${previousSpun.sIdx * 80}px)`;
-      weekReel.style.transform = `translateY(-${previousSpun.wIdx * 80}px)`;
+        // Re-populate Week Reel with standard list
+        weekReel.innerHTML = "";
+        weeks.forEach(w => {
+            const div = document.createElement("div");
+            div.textContent = "Week " + w;
+            weekReel.appendChild(div);
+        });
 
-      document.getElementById('prompt').textContent = previousSpun.prompt;
-      document.getElementById('answerContent').textContent = previousSpun.answer;
-      // Keep lastSpun as previousSpun so we don't break the chain
-      lastSpun = { ...previousSpun };         previousSpun = null; // Clear history until next spin
+        // Force a tiny reflow so the browser sees the new divs before animating
+        subReel.offsetHeight; 
+
+        // Apply the "Rewind" animation
+        subReel.style.transition = "transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
+        weekReel.style.transition = "transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
+
+        // Move to the PREVIOUS indices
+        subReel.style.transform = `translateY(-${previousSpun.sIdx * 80}px)`;
+        weekReel.style.transform = `translateY(-${previousSpun.wIdx * 80}px)`;
+
+        // Update Text to previous question
+        document.getElementById('prompt').textContent = previousSpun.prompt;
+        document.getElementById('answerContent').textContent = previousSpun.answer;
+        
+        // Step back the memory
+        lastSpun = { ...previousSpun };
+        previousSpun = null; 
     } else {
-      // If there was no previous question, just clear the prompt
-      document.getElementById('subjectReel').style.transform = `translateY(0)`;
-      document.getElementById('weekReel').style.transform = `translateY(0)`;
-      document.getElementById('prompt').textContent = "Spin to start!";        document.getElementById('answerContent').textContent = "";
-      lastSpun = null;
+        // If there was no previous question, just reset to top
+        document.getElementById('subjectReel').style.transform = `translateY(0)`;
+        document.getElementById('weekReel').style.transform = `translateY(0)`;
+        document.getElementById('prompt').textContent = "Spin to start!";
+        document.getElementById('answerContent').textContent = "";
+        lastSpun = null;
     }
 
     // 3. Reset UI state
