@@ -28,6 +28,10 @@
   --text-muted: #64748b;
   --radius: 24px;
   --shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+
+  /* dimensions used by controls */
+  --spin-size: 85px;
+  --undo-size: 50px;
 }
 
 /* ==========================================================================
@@ -212,19 +216,19 @@ h1 {
 
 .control-row {
   position: fixed;
-  bottom: 60px;
-  right: 20px;
+  bottom: 0;
+  left: 0;
+  right: 0;
   display: flex;
-  flex-direction: row;
+  justify-content: space-between;
   align-items: center;
-  gap: 15px;
+  padding: 0 20px;
   z-index: 600;
-}
+} 
 
 #spinBtn {
-  width: 85px;
-  height: 85px;
-  border-radius: 50%;
+  width: var(--spin-size);
+  height: var(--spin-size);
   background: var(--primary);
   color: #fff;
   border: none;
@@ -238,7 +242,10 @@ h1 {
   box-shadow: 0 10px 25px rgba(255, 111, 97, 0.4);
   cursor: pointer;
   transition: all 0.1s ease;
-}
+  /* quarter-circle in bottom-right corner */
+  clip-path: circle(var(--spin-size) at 100% 100%);
+  z-index: 601;
+} 
 
 #spinBtn:active {
   transform: translateY(2px);
@@ -253,9 +260,8 @@ h1 {
 }
 
 #undoBtn {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
+  width: var(--undo-size);
+  height: var(--undo-size);
   background: white;
   color: var(--secondary);
   border: 2px solid rgba(74, 144, 226, 0.3);
@@ -267,6 +273,9 @@ h1 {
   box-shadow: var(--shadow);
   transition: all 0.2s ease;
   padding: 0 4px 4px 0; /* Slight nudge to center the ⤾ */
+  /* quarter-circle bottom-left */
+  clip-path: circle(var(--undo-size) at 0 100%);
+  z-index: 601;
 }
 
 #undoBtn:disabled {
