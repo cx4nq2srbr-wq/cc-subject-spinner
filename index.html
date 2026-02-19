@@ -216,17 +216,17 @@ h1 {
 
 .control-row {
   position: fixed;
-  bottom: 50px; /* Sits exactly on the Edit button */
+  /* This matches the 50px base height of the edit button */
+  bottom: calc(50px + env(safe-area-inset-bottom, 0px));
   left: 0;
   right: 0;
-  height: 100px; /* Give the container height */
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
   padding: 0;
-  pointer-events: none; /* Crucial: clicks pass through the gap */
-  z-index: 601; /* Must be higher than editBtn */
-} 
+  pointer-events: none; 
+  z-index: 600;
+}
 
 #spinBtn, #undoBtn {
   pointer-events: auto; /* Crucial: re-enables clicks for the buttons */
@@ -287,6 +287,30 @@ h1 {
 
 #undoBtn:not(:disabled):active {
   transform: scale(0.95);
+}
+
+#editBtn {
+  position: fixed;
+  bottom: 0; 
+  left: 0; 
+  right: 0;
+  height: 50px; 
+  /* Account for the "Home Bar" on iPhones */
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  /* Make sure height adjusts to include that padding so it stays 50px + notch */
+  height: calc(50px + env(safe-area-inset-bottom, 0px));
+  
+  background: white;
+  color: var(--secondary);
+  border: none;
+  border-top: 1px solid rgba(0,0,0,0.1);
+  font-weight: 700;
+  font-size: 16px;
+  z-index: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* ==========================================================================
