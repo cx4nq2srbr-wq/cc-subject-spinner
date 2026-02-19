@@ -216,99 +216,88 @@ h1 {
 
 .control-row {
   position: fixed;
-  /* This matches the 50px base height of the edit button */
+  /* Fixed 50px for the edit bar + the device notch */
   bottom: calc(50px + env(safe-area-inset-bottom, 0px));
   left: 0;
   right: 0;
+  height: 0; /* Let children overflow so they don't block the screen */
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  padding: 0;
   pointer-events: none; 
   z-index: 600;
 }
 
-#spinBtn {
-  width: 80px;
-  height: 80px;
-  background: var(--primary);
-  color: #fff;
+#spinBtn, #undoBtn {
+  width: 90px;  /* Increased for better thumb reach */
+  height: 90px;
   border: none;
-  border-radius: 100% 0 0 0;
+  font-family: 'Quicksand', sans-serif;
   font-size: 18px;
   font-weight: 800;
   text-transform: uppercase;
+  color: #fff;
+  cursor: pointer;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
   display: flex;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* SPIN BUTTON - Bottom Right Corner */
+#spinBtn {
+  background: var(--primary);
+  border-radius: 100% 0 0 0;
   align-items: flex-end;
   justify-content: flex-end;
-  padding: 0 15px 15px 0;
-  transition: all 0.2s ease;
+  padding: 0 15px 12px 0; /* Adjusted for "Spin" text */
   box-shadow: -2px -2px 10px rgba(0,0,0,0.1);
-  pointer-events: auto; /* Crucial: re-enables clicks for the buttons */
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent; /* Fixes blue flash on mobile */
+  transform-origin: bottom right;
 }
 
-#spinBtn:active {
-  transform: scale(0.95); /* Better visual feedback than translateY */
-}
-
-#spinBtn:disabled {
-  background: #cbd5e1;
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
+/* UNDO BUTTON - Bottom Left Corner */
 #undoBtn {
-  width: 80px;
-  height: 80px;
   background: var(--secondary);
-  color: white;
-  border: none;
   border-radius: 0 100% 0 0;
-  font-size: 18px;
-  font-weight: 800;
-  line-height: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 12px 15px 0 0;
-  transform-origin: bottom left;
-  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+  align-items: flex-end;
+  justify-content: flex-start;
+  padding: 0 0 12px 12px; /* Adjusted for "undo" text */
   box-shadow: 2px -2px 10px rgba(0,0,0,0.1);
-  pointer-events: auto; /* Crucial: re-enables clicks for the buttons */
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent; /* Fixes blue flash on mobile */
-  white-space: nowrap;
-  overflow: hidden;
+  transform-origin: bottom left;
 }
 
-/* Single, clean disabled state for Undo */
+/* Bouncy feedback for both */
+#spinBtn:active, #undoBtn:not(:disabled):active {
+  transform: scale(0.85);
+}
+
 #undoBtn:disabled {
-  transform: scale(0);
+  transform: scale(0); /* Mushroom shrink */
   opacity: 0;
   pointer-events: none;
 }
 
-#undoBtn:not(:disabled):active {
-  transform: scale(0.92);
+#spinBtn:disabled {
+  background: #cbd5e1;
+  transform: scale(0.95);
+  cursor: not-allowed;
 }
 
+/* Edit Bar Polish */
 #editBtn {
   position: fixed;
   bottom: 0; 
   left: 0; 
   right: 0;
-  height: 50px; 
-  /* Account for the "Home Bar" on iPhones */
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-  /* Make sure height adjusts to include that padding so it stays 50px + notch */
+  /* Safe area handling for modern iPhones */
   height: calc(50px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
   
   background: white;
   color: var(--secondary);
   border: none;
   border-top: 1px solid rgba(0,0,0,0.1);
+  font-family: inherit;
   font-weight: 700;
   font-size: 16px;
   z-index: 500;
@@ -464,7 +453,7 @@ h1 {
 <div class="version-tag">v<span id="app-version">1.0.4</span></div>
 
 <div class="control-row">
-  <button id="undoBtn" onclick="undoLastSpin()" disabled>Undo</button>
+  <button id="undoBtn" onclick="undoLastSpin()" disabled>undo</button>
   <button id="spinBtn" onclick="spinBoth()">Spin</button>
 </div>
 
