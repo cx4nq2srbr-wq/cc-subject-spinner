@@ -456,16 +456,18 @@ h1 {
 <div class="control-row">
   <button id="undoBtn" onclick="undoLastSpin()" disabled>
     <svg viewBox="0 0 100 100">
-      <path id="undoCurve" d="M 20,80 A 60,60 0 0 1 80,20" fill="transparent" />
+      <!-- Arc curves upward from bottom-left corner -->
+      <path id="undoCurve" d="M 10,90 Q 50,20 90,10" fill="transparent" />
       <text>
-        <textPath xlink:href="#undoCurve" startOffset="20%">undo</textPath>
+        <textPath xlink:href="#undoCurve" startOffset="50%" text-anchor="middle">UNDO</textPath>
       </text>
     </svg>
   </button>
 
   <button id="spinBtn" onclick="spinBoth()">
     <svg viewBox="0 0 100 100">
-      <path id="spinCurve" d="M 20,80 A 60,60 0 0 0 80,20" fill="transparent" />
+      <!-- Arc curves upward from bottom-right corner -->
+      <path id="spinCurve" d="M 90,90 Q 50,20 10,10" fill="transparent" />
       <text>
         <textPath xlink:href="#spinCurve" startOffset="50%" text-anchor="middle">SPIN</textPath>
       </text>
