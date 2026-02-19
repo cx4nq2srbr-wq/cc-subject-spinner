@@ -456,8 +456,8 @@ h1 {
 <div class="control-row">
   <button id="undoBtn" onclick="undoLastSpin()" disabled>
     <svg viewBox="0 0 100 100">
-      <!-- Tighter arc, closer to the bottom left corner -->
-      <path id="undoCurve" d="M 20,20 A 65,65 0 0 1 80,80" fill="transparent" />
+      <!-- Even tighter arc, closer to the corner -->
+      <path id="undoCurve" d="M 30,30 A 45,45 0 0 1 70,70" fill="transparent" />
       <text>
         <textPath xlink:href="#undoCurve" startOffset="50%" text-anchor="middle">UNDO</textPath>
       </text>
@@ -466,8 +466,8 @@ h1 {
 
   <button id="spinBtn" onclick="spinBoth()">
     <svg viewBox="0 0 100 100">
-      <!-- Tighter arc, closer to the bottom right corner -->
-      <path id="spinCurve" d="M 20,80 A 65,65 0 0 1 80,20" fill="transparent" />
+      <!-- Even tighter arc, closer to the corner -->
+      <path id="spinCurve" d="M 30,70 A 45,45 0 0 1 70,30" fill="transparent" />
       <text>
         <textPath xlink:href="#spinCurve" startOffset="50%" text-anchor="middle">SPIN</textPath>
       </text>
