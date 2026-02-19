@@ -195,6 +195,12 @@ h1 {
   background: linear-gradient(to bottom, #fff, #f0f7ff, #fff);
 }
 
+.reel {
+  display: flex;
+  flex-direction: column;
+  transition: transform 2.5s cubic-bezier(0.45, 0.05, 0.55, 0.95); /* Default spin speed */
+}
+
 /* ==========================================================================
    5. BUTTONS (Actions)
    ========================================================================== */
@@ -826,6 +832,8 @@ function spinBoth() {
     lastSpun = {
       subject: subject,
       week: week,
+      sIdx: subIdx,
+      wIdx: weekIdx,
       prompt: lesson.p,
       answer: lesson.a
     };
@@ -892,16 +900,25 @@ function undoLastSpin() {
 
     // 2. Rewind the UI to the previous question (if it exists)
     if (previousSpun) {
-        document.getElementById('prompt').textContent = previousSpun.prompt;
-        document.getElementById('answerContent').textContent = previousSpun.answer;
-        // Keep lastSpun as previousSpun so we don't break the chain
-        lastSpun = { ...previousSpun }; 
-        previousSpun = null; // Clear history until next spin
+      const subReel = document.getElementById('subjectReel');
+      const weekReel = document.getElementById('weekReel');
+
+      subReel.style.transition = "transform 0.5s cubic-bezier(0.15, 0, 0.15, 1)";
+      weekReel.style.transition = "transform 0.5s cubic-bezier(0.15, 0, 0.15, 1)";
+
+      subReel.style.transform = `translateY(-${previousSpun.sIdx * 80}px)`;
+      weekReel.style.transform = `translateY(-${previousSpun.wIdx * 80}px)`;
+
+      document.getElementById('prompt').textContent = previousSpun.prompt;
+      document.getElementById('answerContent').textContent = previousSpun.answer;
+      // Keep lastSpun as previousSpun so we don't break the chain
+      lastSpun = { ...previousSpun };         previousSpun = null; // Clear history until next spin
     } else {
-        // If there was no previous question, just clear the prompt
-        document.getElementById('prompt').textContent = "Spin to start!";
-        document.getElementById('answerContent').textContent = "";
-        lastSpun = null;
+      // If there was no previous question, just clear the prompt
+      document.getElementById('subjectReel').style.transform = `translateY(0)`;
+      document.getElementById('weekReel').style.transform = `translateY(0)`;
+      document.getElementById('prompt').textContent = "Spin to start!";        document.getElementById('answerContent').textContent = "";
+      lastSpun = null;
     }
 
     // 3. Reset UI state
