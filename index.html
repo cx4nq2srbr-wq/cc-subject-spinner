@@ -782,12 +782,14 @@ updateVh();
 function spinBoth() {
   const spinBtn = document.getElementById("spinBtn");
 
+  // Handle Reset State
   if (spinBtn.textContent === "Reset") {
      showResetConfirm(); 
      return; 
   }
   
   const toggleBtn = document.getElementById("toggleAnswer");
+  const undoBtn = document.getElementById("undoBtn"); // Get undo btn
   const ansDiv = document.getElementById("answerContent");
   const promptDiv = document.getElementById("prompt");
 
@@ -806,48 +808,70 @@ function spinBoth() {
     return;
   }
 
+  // Lock State
   isSpinning = true;
   spinBtn.disabled = true;
   toggleBtn.disabled = true;
+  undoBtn.disabled = true; // Disable undo while spinning
+  
   toggleBtn.textContent = '▼ Show Answer ▼';
   document.getElementById('answerContainer').classList.remove('open');
   ansDiv.textContent = "";
   promptDiv.textContent = "";
 
+  // 1. Pick the winning subject and week
   const subject = availableSubjects[Math.floor(Math.random() * availableSubjects.length)];
   const availableWeeks = weeks.filter(w => ((w <= maxWeekLimit || allowedWeeks.includes(w)) && !blockedWeeks.includes(w)) && gridState[subject][w]);
   const week = availableWeeks[Math.floor(Math.random() * availableWeeks.length)];
 
+  // 2. DEFINE THE INDICES (The missing part that was causing the crash)
+  const subIdx = subjects.indexOf(subject);
+  const weekIdx = weeks.indexOf(week);
+
+  // 3. Start Reel Animations
   spinReel("subjectReel", availableSubjects, subject, 2000);
   spinReel("weekReel", availableWeeks.map(w => "Week " + w), "Week " + week, 2800);
 
+  // 4. Finalize Spin
   setTimeout(() => {
-    playSound(880, 'sine', 0.5, 0.04); 
-    if (navigator.vibrate) navigator.vibrate([40, 30, 40]);
-    
-    const lesson = lessonData[subject][week];
+    try {
+      playSound(880, 'sine', 0.5, 0.04); 
+      if (navigator.vibrate) navigator.vibrate([40, 30, 40]);
+      
+      const lesson = lessonData[subject][week];
 
-    previousSpun = lastSpun ? { ...lastSpun } : null; // Store previous state for potential undo  
+      // Save memory for Undo
+      previousSpun = lastSpun ? { ...lastSpun } : null; 
 
-    lastSpun = {
-      subject: subject,
-      week: week,
-      sIdx: subIdx,
-      wIdx: weekIdx,
-      prompt: lesson.p,
-      answer: lesson.a
-    };
+      lastSpun = {
+        subject: subject,
+        week: week,
+        sIdx: subIdx,   // Now properly defined
+        wIdx: weekIdx,   // Now properly defined
+        prompt: lesson.p,
+        answer: lesson.a
+      };
 
-    document.getElementById('prompt').textContent = lesson.p;
-    document.getElementById('answerContent').textContent = lesson.a;
-    document.getElementById('undoBtn').disabled = false; // Enable the button
-    
-    toggleBtn.disabled = false;
-    gridState[subject][week] = false;
-    saveToDevice();
-    buildGrid();
-    isSpinning = false;
-    spinBtn.disabled = false;
+      // Display results
+      document.getElementById('prompt').textContent = lesson.p;
+      document.getElementById('answerContent').textContent = lesson.a;
+      
+      // Update Grid State
+      gridState[subject][week] = false;
+      
+      saveToDevice();
+      buildGrid();
+      
+    } catch (e) {
+      console.error("Spin Error:", e);
+      document.getElementById('prompt').textContent = "Spinning error. Please try again!";
+    } finally {
+      // Re-enable everything
+      isSpinning = false;
+      spinBtn.disabled = false;
+      toggleBtn.disabled = false;
+      undoBtn.disabled = false; 
+    }
   }, 2600);
 }
 
