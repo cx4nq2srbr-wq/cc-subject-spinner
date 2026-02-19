@@ -216,7 +216,8 @@ h1 {
 
 .control-row {
   position: fixed;
-  bottom: 0;
+  /* sit just above the bottom nav/edit button */
+  bottom: calc(60px + env(safe-area-inset-bottom, 0px));
   left: 0;
   right: 0;
   display: flex;
