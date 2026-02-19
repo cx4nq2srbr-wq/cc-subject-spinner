@@ -3,8 +3,7 @@
 <head>
   <meta name="theme-color" content="#f0f7ff">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">  
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="CC Spinner">
@@ -39,7 +38,13 @@ html, body {
   margin: 0;
   padding: 0;
   overflow: hidden; 
-  touch-action: none;
+  touch-action: pan-y;
+  -webkit-text-size-adjust: 100%;
+  overscroll-behavior: none;
+}
+
+input, button, select, textarea {
+  font-size: 16px !important; /* iOS zooms if font-size is less than 16px */
 }
 
 body {
@@ -1103,6 +1108,21 @@ function resetGridConfirmed() {
   document.getElementById('answerContainer').classList.remove('open');
   document.getElementById('toggleAnswer').disabled = true;
 }
+
+document.addEventListener('touchstart', function (event) {
+  if (event.touches.length > 1) {
+    event.preventDefault();
+  }
+}, { passive: false });
+
+let lastTouchEnd = 0;
+document.addEventListener('touchend', function (event) {
+  const now = (new Date()).getTime();
+  if (now - lastTouchEnd <= 300) {
+    event.preventDefault();
+  }
+  lastTouchEnd = now;
+}, false);
 
 /* ==========================================================================
    7. INPUT & SERVICE WORKER BINDINGS
