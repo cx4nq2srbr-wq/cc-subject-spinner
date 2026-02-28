@@ -266,6 +266,7 @@ h1 {
   background: var(--secondary);
   border-radius: 0 100% 0 0;
   transform-origin: bottom left;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.3s ease, opacity 0.3s ease;
 }
 
 /* Bouncy feedback for both */
@@ -274,9 +275,12 @@ h1 {
 }
 
 #undoBtn:disabled {
-  transform: scale(0); /* Mushroom shrink */
-  opacity: 0;
-  pointer-events: none;
+    background-color: #bdc3c7; /* A neutral grey */
+    color: #ecf0f1;
+    cursor: not-allowed;
+    transform: scale(0.95); /* Slightly smaller to show it's "off" */
+    opacity: 0.7;
+    box-shadow: none;
 }
 
 #spinBtn:disabled {
@@ -1311,7 +1315,7 @@ function spinBoth() {
   }
   
   const toggleBtn = document.getElementById("toggleAnswer");
-  const undoBtn = document.getElementById("undoBtn"); // Get undo btn
+  const undoBtn = document.getElementById("undoBtn");
   const ansDiv = document.getElementById("answerContent");
   const promptDiv = document.getElementById("prompt");
 
@@ -1334,7 +1338,7 @@ function spinBoth() {
   isSpinning = true;
   spinBtn.disabled = true;
   toggleBtn.disabled = true;
-  undoBtn.disabled = true; // Disable undo while spinning
+  undoBtn.disabled = true;
   
   toggleBtn.textContent = '▼ Show Answer ▼';
   document.getElementById('answerContainer').classList.remove('open');
