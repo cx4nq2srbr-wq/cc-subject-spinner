@@ -356,11 +356,34 @@ background-color: #ff9d94; /* Faded coral/red */
 .gridHeader h2 { flex: 1; text-align: center; margin: 0; padding-right: 45px; font-size: 1.4rem; }
 
 .closeGridBtn {
-  font-size: 1.8rem; color: #fff; background: #4a90e2; border-radius: 50%;
-  width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;
-  border: none; cursor: pointer; flex-shrink: 0;
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #f1f3f5;
+    border: none;
+    width: 38px;  /* Fixed size for a perfect circle */
+    height: 38px; /* Fixed size for a perfect circle */
+    border-radius: 50%;
+    font-size: 22px;
+    font-weight: bold;
+    color: var(--text);
+    cursor: pointer;
+    
+    /* This is the magic for Android centering */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1; 
+    padding: 0;
+    
+    transition: background 0.2s;
 }
 
+.closeGridBtn:active {
+    background: #e9ecef;
+}
+  
 /* Table Controls & Layout */
 #grid {
   padding: 12px 6px 32px 6px; 
@@ -529,8 +552,8 @@ background-color: #ff9d94; /* Faded coral/red */
 <div id="gridOverlay">
   <div id="gridContent">
    <div class="gridHeader">
-    <button class="closeGridBtn" onclick="toggleGrid()">←</button>
-    <h2 style="padding-right: 0;">Lesson Grid</h2>
+    <button class="closeGridBtn" onclick="toggleGrid()">&larr;</button>
+    <h2 style="padding-right: 0; flex-grow: 1; text-align: center;">Lesson Grid</h2>
     <select id="cyclePicker" onchange="changeCycle(this.value)">
         <option value="1">Cycle 1</option>
         <option value="2">Cycle 2</option>
