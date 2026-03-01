@@ -521,12 +521,15 @@ background-color: #ff9d94; /* Faded coral/red */
   max-width: 420px;
   text-align: center;
   overflow: hidden;
+  z-index: 2;
 }
 
 #doneOverlay canvas {
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;
+  width: 100%; height: 100%;
   pointer-events: none;
+  z-index: 1;
 }
 
 #doneOverlay .doneActions { position: relative; z-index: 2; }
@@ -627,14 +630,13 @@ background-color: #ff9d94; /* Faded coral/red */
 </div>
 
 <div id="doneOverlay">
+  <canvas id="confettiCanvas"></canvas>
   <div class="doneBox">
-    <canvas id="confettiCanvas"></canvas>
     <div class="doneActions">
       <h3 style="margin-top:0; color:var(--secondary)">Lesson Complete!</h3>
-      <p>Great work — you finished all lessons for today. Would you like to reset the grid for the next day?</p>
+      <p>Great work — you finished all lessons for today.</p>
       <div style="display:flex; gap:12px; justify-content:center; margin-top:12px;">
-        <button onclick="(function(){ resetGridConfirmed(); hideDoneOverlay(); })()" style="background:#22c55e; color:white; border:none; padding:12px 18px; border-radius:12px; font-weight:700; cursor:pointer;">Reset for Next Day</button>
-        <button onclick="hideDoneOverlay()" style="background:#f1f5f9; color:#64748b; padding:12px 18px; border:none; border-radius:12px; font-weight:700; cursor:pointer;">Close</button>
+        <button onclick="(function(){ resetGridConfirmed(); hideDoneOverlay(); })()" style="background:#22c55e; color:white; border:none; padding:12px 18px; border-radius:12px; font-weight:700; cursor:pointer;">Reset Lesson</button>
       </div>
     </div>
   </div>
@@ -1429,18 +1431,12 @@ updateVh();
 
 function spinBoth() {
   const spinBtn = document.getElementById("spinBtn");
-
+  // Handle Reset State
   // If we've switched to the Done state, show celebration
-  if (spinBtn.textContent && spinBtn.textContent.trim().toLowerCase() === 'done') {
-    finishLesson();
-    return;
-  }
+  if (getSpinLabel().toLowerCase() === 'done') { finishLesson(); return; }
 
   // Handle Reset State
-  if (spinBtn.textContent === "Reset") {
-     showResetConfirm(); 
-     return; 
-  }
+  if (getSpinLabel() === "Reset") { showResetConfirm(); return; }
   
   const toggleBtn = document.getElementById("toggleAnswer");
   const undoBtn = document.getElementById("undoBtn");
@@ -1456,8 +1452,8 @@ function spinBoth() {
   );
 
   if (availableSubjects.length === 0) {
-    spinBtn.textContent = "Reset";
-    spinBtn.style.background = "#64748b"; 
+    setSpinLabel('Reset');
+    spinBtn.style.background = "#64748b";
     spinBtn.style.fontSize = "14px";
     return;
   }
@@ -1521,7 +1517,7 @@ function spinBoth() {
         weeks.some(w => ((w <= maxWeekLimit || allowedWeeks.includes(w)) && !blockedWeeks.includes(w)) && gridState[s][w])
       );
       if (!remaining) {
-        spinBtn.textContent = 'Done';
+        setSpinLabel('Done');
         spinBtn.style.background = '#22c55e';
         spinBtn.style.fontSize = '14px';
       }
@@ -1663,6 +1659,23 @@ function playSound(frequency, type, duration, volume = 0.1) {
   oscillator.stop(audioCtx.currentTime + duration);
 }
 
+// Helpers to set/get the curved label on the spin button's SVG
+function setSpinLabel(label) {
+  const spinBtn = document.getElementById('spinBtn');
+  if (!spinBtn) return;
+  const tp = spinBtn.querySelector('textPath');
+  if (tp) tp.textContent = String(label).toUpperCase();
+  else spinBtn.textContent = String(label).toUpperCase();
+}
+
+function getSpinLabel() {
+  const spinBtn = document.getElementById('spinBtn');
+  if (!spinBtn) return '';
+  const tp = spinBtn.querySelector('textPath');
+  if (tp) return (tp.textContent || '').trim();
+  return (spinBtn.textContent || '').trim();
+}
+
 /* ==========================================================================
    5. GRID & LESSON MANAGEMENT
    ========================================================================== */
@@ -1760,6 +1773,8 @@ function resetGridConfirmed() {
   const spinBtn = document.getElementById("spinBtn");
   spinBtn.style.background = "var(--primary)"; 
   spinBtn.disabled = false;
+  setSpinLabel('SPIN');
+  spinBtn.style.fontSize = '';
   
   document.getElementById('prompt').textContent = "Grid Reset!";
   document.getElementById('answerContent').textContent = ""; 
@@ -1772,6 +1787,7 @@ function resetGridConfirmed() {
 // ==========================================================================
 let confettiAnimationId = null;
 let confettiParticles = null;
+let confettiResizeHandler = null;
 
 function finishLesson() {
   if (navigator.vibrate) navigator.vibrate([60,30,60]);
@@ -1797,9 +1813,10 @@ function startConfetti() {
   const canvas = document.getElementById('confettiCanvas');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
-  function resize() { canvas.width = canvas.clientWidth; canvas.height = canvas.clientHeight; }
+  function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; canvas.style.width = '100%'; canvas.style.height = '100%'; }
   resize();
-  window.addEventListener('resize', resize);
+  confettiResizeHandler = resize;
+  window.addEventListener('resize', confettiResizeHandler);
 
   const w = canvas.width, h = canvas.height;
   const colors = ['#ef4444','#f97316','#f59e0b','#22c55e','#06b6d4','#6366f1','#ec4899'];
@@ -1835,6 +1852,10 @@ function stopConfetti() {
   if (confettiAnimationId) cancelAnimationFrame(confettiAnimationId);
   confettiAnimationId = null;
   confettiParticles = null;
+  if (confettiResizeHandler) {
+    window.removeEventListener('resize', confettiResizeHandler);
+    confettiResizeHandler = null;
+  }
   const canvas = document.getElementById('confettiCanvas');
   if (canvas) {
     const ctx = canvas.getContext('2d');
