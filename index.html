@@ -463,10 +463,35 @@ background-color: #ff9d94; /* Faded coral/red */
   border-radius: 8px; cursor: pointer; font-size: 18px;
 }
 
+.resetHeaderBtn {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: 1px solid #dc3545;
+  color: #dc3545;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.resetHeaderBtn:hover {
+  background: #fff5f5;
+}
+
+.resetHeaderBtn:active {
+  background: #dc3545;
+  color: white;
+}
+  
 /* ==========================================================================
    7. MODALS & DIALOGS
    ========================================================================== */
-#resetConfirmOverlay {
+  #resetConfirmOverlay {
   position: fixed;
   inset: 0;
   display: none;
@@ -575,14 +600,15 @@ background-color: #ff9d94; /* Faded coral/red */
         <div class="gridHeader">
             <button class="closeGridBtn" onclick="toggleGrid()">&larr;</button>
             <h2 class="header-title">Lesson Grid</h2>
+            <button class="resetHeaderBtn" onclick="resetGrid()">Reset</button>
         </div>
 
         <div class="grid-controls-row">
             <div class="maxWeekControl">
                 <span>Max Week:</span>
-                <button class="maxWeekBtn" onclick="updateMaxWeek(-1)">-</button>
+                <button class="maxWeekBtn" onclick="decreaseWeek()">-</button>
                 <span id="maxWeekDisplay">12</span>
-                <button class="maxWeekBtn" onclick="updateMaxWeek(1)">+</button>
+                <button class="maxWeekBtn" onclick="increaseWeek()">+</button>
             </div>
             <select id="cyclePicker" onchange="changeCycle(this.value)">
                 <option value="1">Cycle 1</option>
@@ -593,10 +619,6 @@ background-color: #ff9d94; /* Faded coral/red */
 
         <div id="grid"></div>
 
-        <div style="padding: 15px; border-top: 1px solid #eee;">
-            <button onclick="resetGrid()" style="width:100%; background: #f8f9fa; color: #dc3545; border: 1px solid #dc3545; padding: 12px; cursor: pointer; border-radius: 12px; font-weight: 700;">
-                Reset Progress
-            </button>
         </div>
     </div>
 </div>
