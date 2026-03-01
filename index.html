@@ -581,7 +581,15 @@ background-color: #ff9d94; /* Faded coral/red */
 #cyclePicker:active {
     transform: translateY(0);
 }
-
+/* Mobile adjustments for the prompt box */
+@media (max-width: 480px) {
+    #prompt {
+        font-size: 16px; /* Shrinks the text slightly */
+        padding: 12px;   /* Reduces the inner padding to give text more room */
+        height: 110px;   /* Optional: slightly shorter box to save screen space on small phones */
+    }
+}
+  
 </style>
 </head>
 <body>
