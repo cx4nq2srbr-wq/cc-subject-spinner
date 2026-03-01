@@ -155,18 +155,18 @@ h1 {
 
 #answerContent {
   padding: 0 20px;
-  max-height: 0px; 
-  overflow-y: auto;
+  max-height: 0px;   overflow-y: auto;
   transition: all 0.3s ease;
   color: var(--text-muted);
   font-size: 17px;
-  white-space: pre-wrap; 
+  white-space: pre-wrap;
   text-align: center;
+  box-sizing: border-box; 
 }
 
 #answerContainer.open #answerContent {
   max-height: 450px; 
-  padding: 0 20px 20px 20px;
+  padding: 20px;
 }
 
 /* ==========================================================================
@@ -344,13 +344,19 @@ background-color: #ff9d94; /* Faded coral/red */
   padding-top: env(safe-area-inset-top, 44px);
 }
 
+/* Row 1: Back button left, Title centered */
 .gridHeader {
-  display: flex; 
-  align-items: center; 
-  justify-content: space-between;
-  padding: 12px 20px;
-  background: #fff; 
-  border-bottom: 2px solid #eee;
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Centers the H2 */
+    padding: 15px;
+    position: relative;
+    border-bottom: 1px solid #eee;
+}
+
+.header-title {
+    margin: 0;
+    font-size: 1.4rem;
 }
 
 .gridHeader h2 { flex: 1; text-align: center; margin: 0; padding-right: 45px; font-size: 1.4rem; }
@@ -433,11 +439,25 @@ background-color: #ff9d94; /* Faded coral/red */
 .override { background: #d4f0d8; }
 .blocked { background: #fdecea; color: #5a2a28; }
 
-/* Max Week Controls */
-.maxWeekControl {
-  display: inline-flex; align-items: center; gap: 8px; background: #fff8d6;
-  padding: 8px 10px; border-radius: 10px; border: 1px solid #f3d08a;
+.grid-controls-row {
+    display: flex;
+    justify-content: space-between; /* Pushes items to the far left and right */
+    align-items: center;
+    padding: 15px 20px;
+    background: #fdfdfd;
 }
+
+.maxWeekControl {
+ display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #fff8d6;
+    padding: 6px 12px;
+    border-radius: 10px;
+    border: 1px solid #f3d08a;
+    font-weight: 600;
+}
+
 .maxWeekBtn {
   width: 34px; height: 34px; background: #ffd37a; border: 1px solid #e6a83a;
   border-radius: 8px; cursor: pointer; font-size: 18px;
@@ -481,6 +501,7 @@ background-color: #ff9d94; /* Faded coral/red */
     box-shadow: 0 4px 10px rgba(74, 144, 226, 0.3);
     font-family: inherit;
     min-width: 90px;
+    margin: 0;
 }
 
 #cyclePicker:hover {
@@ -551,14 +572,27 @@ background-color: #ff9d94; /* Faded coral/red */
 
 <div id="gridOverlay">
   <div id="gridContent">
-   <div class="gridHeader">
-    <button class="closeGridBtn" onclick="toggleGrid()">&larr;</button>
-    <h2 style="padding-right: 0; flex-grow: 1; text-align: center;">Lesson Grid</h2>
-    <select id="cyclePicker" onchange="changeCycle(this.value)">
-        <option value="1">Cycle 1</option>
-        <option value="2">Cycle 2</option>
-        <option value="3">Cycle 3</option>
-    </select>
+    <div class="gridHeader">
+        <button class="closeGridBtn" onclick="toggleGrid()">&larr;</button>
+        <h2 class="header-title">Lesson Grid</h2>
+    </div>
+
+    <div class="grid-controls-row">
+        <div class="maxWeekControl">
+            <span>Max Week:</span>
+            <button class="maxWeekBtn" onclick="updateMaxWeek(-1)">-</button>
+            <span id="maxWeekDisplay">12</span>
+            <button class="maxWeekBtn" onclick="updateMaxWeek(1)">+</button>
+        </div>
+
+        <select id="cyclePicker" onchange="changeCycle(this.value)">
+            <option value="1">Cycle 1</option>
+            <option value="2">Cycle 2</option>
+            <option value="3">Cycle 3</option>
+        </select>
+    </div>
+    
+    <div id="grid"></div>
 </div>
 <div class="gridControls" style="display: flex; flex-direction: column; gap: 10px;">
   <div style="display:flex; align-items:center; gap:10px; justify-content: center;">
