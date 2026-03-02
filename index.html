@@ -364,27 +364,28 @@ background-color: #ff9d94; /* Faded coral/red */
     font-size: 1.4rem;
 }
 
-.gridHeader h2 { flex: 1; text-align: center; margin: 0; padding-right: 45px; font-size: 1.4rem; }
+.gridHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* This pushes the back arrow left, and the gear right */
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+}
 
 .closeGridBtn {
-    position: absolute;
-    left: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-  
+    /* Notice we removed the 'position: absolute' lines! */
     background-color: var(--secondary);
     border: none;
     color: white;
     box-shadow: 0 4px 10px rgba(74, 144, 226, 0.3);
     
-    width: 38px;  /* Fixed size for a perfect circle */
-    height: 38px; /* Fixed size for a perfect circle */
+    width: 38px;  
+    height: 38px; 
     border-radius: 50%;
     font-size: 22px;
     font-weight: bold;
     cursor: pointer;
     
-    /* This is the magic for Android centering */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -397,7 +398,7 @@ background-color: #ff9d94; /* Faded coral/red */
 .closeGridBtn:hover,
 .closeGridBtn:active {
     background-color: #357abd;
-    transform: translateY(-50%) scale(1.05);
+    transform: scale(1.05); /* Removed the translateY(-50%) here too */
 }
   
 /* Table Controls & Layout */
@@ -664,8 +665,9 @@ background-color: #ff9d94; /* Faded coral/red */
     <div id="gridContent">
         <div class="gridHeader">
   <button class="closeGridBtn" onclick="toggleGrid()">&larr;</button>
-  <div style="position: absolute; right: 15px; display: flex; gap: 8px; align-items: center;">
-      <button onclick="toggleSettings()" style="background: none; border: none; font-size: 20px; cursor: pointer;">⚙️</button>
+  
+  <div style="display: flex; gap: 12px; align-items: center;">
+      <button onclick="toggleSettings()" style="background: none; border: none; font-size: 22px; cursor: pointer; padding: 0;">⚙️</button>
       <button class="resetHeaderBtn" onclick="resetGrid()">Reset</button>
   </div>
 </div>
@@ -1540,12 +1542,12 @@ function spinBoth() {
   ansDiv.textContent = "";
   promptDiv.textContent = "";
 
-  // 1. Pick the winning subject and week
-  const winningSubject = availableSubjects[Math.floor(Math.random() * availableSubjects.length)];
+ // 1. Pick the winning subject and week
+  const subject = availableSubjects[Math.floor(Math.random() * availableSubjects.length)];
   const availableWeeks = weeks.filter(w => ((w <= maxWeekLimit || allowedWeeks.includes(w)) && !blockedWeeks.includes(w)) && gridState[subject][w]);
   const week = availableWeeks[Math.floor(Math.random() * availableWeeks.length)];
 
-  // 2. DEFINE THE INDICES (The missing part that was causing the crash)
+  // 2. DEFINE THE INDICES 
   const subIdx = subjects.indexOf(subject);
   const weekIdx = weeks.indexOf(week);
 
@@ -1566,10 +1568,10 @@ function spinBoth() {
       previousSpun = lastSpun ? { ...lastSpun } : null; 
 
       lastSpun = {
-        subject: winningSubject,
+        subject: subject, // Fixed variable name
         week: week,
-        sIdx: subIdx,   // Now properly defined
-        wIdx: weekIdx,   // Now properly defined
+        sIdx: subIdx,   
+        wIdx: weekIdx,   
         prompt: lesson.p,
         answer: lesson.a
       };
