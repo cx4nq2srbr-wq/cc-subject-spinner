@@ -704,6 +704,15 @@ const subjectIcons = {
 };
 const weeks = Array.from({length: 24}, (_, i) => i + 1);
 
+const latinTwinGroups = [
+  [1, 2, 13, 14], // Present Tense
+  [3, 4, 15, 16], // Imperfect Tense
+  [5, 6, 17, 18], // Future Tense
+  [7, 8, 19, 20], // Perfect Tense
+  [9, 10, 21, 22], // Pluperfect Tense
+  [11, 12, 23, 24] // Future Perfect Tense
+];
+
 /* --- LESSON DATA --- */
 const cycleData = {
   1: {
@@ -786,30 +795,30 @@ const cycleData = {
       24: { p: "What are some markings on the globe?", a: "latitude, longitude, Prime Meridian, degrees, Northern/Southern Hemispheres" }
     },
     "English": {
-      1: { p: "A Preposition", a: "A preposition relates a noun or pronoun to another word." },
-      2: { p: "Prepositions: about - along", a: "about, above, across, after, against, along" },
-      3: { p: "Prepositions: amid - atop", a: "amid, among, around, at, atop" },
-      4: { p: "Prepositions: before - between", a: "before, behind, below, beneath, beside, between" },
-      5: { p: "Prepositions: beyond - down", a: "beyond, but, by, concerning, down" },
-      6: { p: "Prepositions: during - from", a: "during, except, for, from" },
-      7: { p: "Prepositions: in - into", a: "in, inside, into, like" },
-      8: { p: "Prepositions: near - onto", a: "near, of, off, on, onto" },
-      9: { p: "Prepositions: out - past", a: "out, outside, over, past" },
-      10: { p: "Prepositions: regarding - toward", a: "regarding, since, through, throughout, toward" },
-      11: { p: "Prepositions: under - upon", a: "under, underneath, until, up, upon" },
-      12: { p: "Prepositions: with - without", a: "with, within, without" },
+      1: { p: "A Preposition", a: "A <b>preposition</b> relates a noun or pronoun to another word." },
+      2: { p: "Prepositions: about - against", a: "<b>about, above, across, after, against</b>" },
+      3: { p: "Prepositions: along - atop", a: "<b>along, amid, among, around, at, atop</b>" },
+      4: { p: "Prepositions: before - beside", a: "<b>before, behind, below, beneath, beside</b>" },
+      5: { p: "Prepositions: between - concerning", a: "<b>between, beyond, but, by, concerning</b>" },
+      6: { p: "Prepositions: down - from", a: "<b>down, during, except, for, from</b>" },
+      7: { p: "Prepositions: in - near", a: "<b>in, inside, into, like, near</b>" },
+      8: { p: "Prepositions: of - out", a: "<b>of, off, on, onto, out</b>" },
+      9: { p: "Prepositions: outside - since", a: "<b>outside, over, past, regarding, since</b>" },
+      10: { p: "Prepositions: through - toward", a: "<b>through, throughout, to, toward</b>" },
+      11: { p: "Prepositions: under - upon", a: "<b>under, underneath, until, up, upon</b>" },
+      12: { p: "Prepositions: with - without", a: "<b>with, within, without</b>" },
       13: { p: "Compound Prepositions", a: "according to, in addition to, except for, in front of, out of, instead of" },
       14: { p: "A Helping Verb", a: "A helping verb helps another verb assert action, being, or existence." },
-      15: { p: "Helping Verbs: do, does, did", a: "do, does, did" },
-      16: { p: "Helping Verbs: has, have, had", a: "has, have, had" },
-      17: { p: "Helping Verbs: may, might, must", a: "may, might, must" },
-      18: { p: "Helping Verbs: should, could, would", a: "should, could, would" },
-      19: { p: "Helping Verbs: shall, will, can", a: "shall, will, can" },
+      15: { p: "Helping Verbs: do, does, did", a: "<b>do, does, did</b>" },
+      16: { p: "Helping Verbs: has, have, had", a: "<b>has, have, had</b>" },
+      17: { p: "Helping Verbs: may, might, must", a: "<b>may, might, must</b>" },
+      18: { p: "Helping Verbs: should, could, would", a: "<b>should, could, would</b>" },
+      19: { p: "Helping Verbs: shall, will, can", a: "<b>shall, will, can</b>" },
       20: { p: "A Linking Verb", a: "A linking verb makes an assertion by joining two words." },
-      21: { p: "Linking Verb: To Be", a: "be, am, is, are, was, were, being, been" },
-      22: { p: "Linking Verbs: feel - taste", a: "feel, become, remain, taste" },
-      23: { p: "Linking Verbs: seem - sound", a: "seem, appear, look, sound" },
-      24: { p: "Linking Verbs: stay - grow", a: "stay, smell, grow" }
+      21: { p: "Helping and Linking Verb: To Be", a: "be, am, is, are, was, were, being, been" },
+      22: { p: "Linking Verbs: feel - taste", a: "<b>feel, become, remain, taste</b>" },
+      23: { p: "Linking Verbs: seem - sound", a: "<b>seem, appear, look, sound</b>" },
+      24: { p: "Linking Verbs: stay - grow", a: "<b>stay, smell, grow</b>" }
     },
     "History": {
       1: { p: "Commandments 1-5", a: "1. No other gods, 2. No idols, 3. No misuse of Name, 4. Sabbath, 5. Honor parents" },
@@ -1075,8 +1084,8 @@ const cycleData = {
       24: { p: "Southern Africa", a: "Namibia, Botswana, Mozambique, South Africa, Lesotho.                       " }
     },
     "Bible": {
-      1: { p: "What are the names of eight significant judges of Israel? (1-4)", a: "1. Othniel, 2. Ehud, 3. Deborah, 4. Gideon" },
-      2: { p: "What are the names of eight significant judges of Israel? (5-8)", a: "5. Jephthah, 6. Samson, 7. Eli, 8. Samuel" },
+      1: { p: "What are the names of eight significant judges of Israel? (1-4)", a: "<b>1. Othniel, 2. Ehud, 3. Deborah, 4. Gideon</b>, 5. Jephthah, 6. Samson, 7. Eli, 8. Samuel" },
+      2: { p: "What are the names of eight significant judges of Israel? (5-8)", a: "1. Othniel, 2. Ehud, 3. Deborah, 4. Gideon, <b>5. Jephthah, 6. Samson, 7. Eli, 8. Samuel</b>" },
       3: { p: "Who are the three kings of united Israel?", a: "1. Saul, 2. David, 3. Solomon" },
       4: { p: "Who was David?", a: "Warrior, hero, musician, poet, king; fell greatly in sin, yet rose again to love and serve God" },
       5: { p: "What is God's covenant with David?", a: "That the Messiah would come from the family of David; The tribe of Judah would establish an unending kingdom" },
@@ -1084,9 +1093,9 @@ const cycleData = {
       7: { p: "What was the consequence of King Solomon's building worship temples to false gods for his pagen wives to worship?", a: "Israel divided into two kingdoms" },
       8: { p: "Who was the first king of Israel, the northern kingdom?", a: "Jeroboam I" },
       9: { p: "Who was the first king of Judah, the southern kingdom?", a: "Rehoboam, son of Solomon" },
-      10: { p: "Who are eighteen significant prophets of Israel? (1-6)", a: "1. Elijah, 2. Elisha, 3. Obadiah, 4. Joel, 5. Jonah, 6. Amos" },
-      11: { p: "Who are eighteen significant prophets of Israel? (7-12)", a: "7. Hosea, 8. Isaiah, 9. Micah, 10. Jeremiah, 11. Zephaniah, 12. Habakkuk" },
-      12: { p: "Who are eighteen significant prophets of Israel? (13-18)", a: "13. Nahum, 14. Ezekiel, 15. Daniel, 16. Haggai, 17. Malachi, 18. Zechariah" },
+      10: { p: "Who are eighteen significant prophets of Israel? (1-6)", a: "<b>1. Elijah, 2. Elisha, 3. Obadiah, 4. Joel, 5. Jonah, 6. Amos</b>, 7. Hosea, 8. Isaiah, 9. Micah, 10. Jeremiah, 11. Zephaniah, 12. Habakkuk, 13. Nahum, 14. Ezekiel, 15. Daniel, 16. Haggai, 17. Malachi, 18. Zechariah" },
+      11: { p: "Who are eighteen significant prophets of Israel? (7-12)", a: "1. Elijah, 2. Elisha, 3. Obadiah, 4. Joel, 5. Jonah, 6. Amos, <b>7. Hosea, 8. Isaiah, 9. Micah, 10. Jeremiah, 11. Zephaniah, 12. Habakkuk</b>, 13. Nahum, 14. Ezekiel, 15. Daniel, 16. Haggai, 17. Malachi, 18. Zechariah" },
+      12: { p: "Who are eighteen significant prophets of Israel? (13-18)", a: "1. Elijah, 2. Elisha, 3. Obadiah, 4. Joel, 5. Jonah, 6. Amos, 7. Hosea, 8. Isaiah, 9. Micah, 10. Jeremiah, 11. Zephaniah, 12. Habakkuk, <b>13. Nahum, 14. Ezekiel, 15. Daniel, 16. Haggai, 17. Malachi, 18. Zechariah</b>" },
       13: { p: "What two nations took the Jewish people into captivity?", a: "Assyria (722 BC); Babylon (586 BC)" },
       14: { p: "Old Testament prophesy about the New Covenant?", a: "Jeremiah" },
       15: { p: "Destruction of the first Jewish temple in 586 BC?", a: "Babylonian invasion under King Nebuchadnezzar" },
@@ -1528,6 +1537,15 @@ function spinBoth() {
       // Update Grid State
       gridState[subject][week] = false;
       
+      if (subject === "Latin") {
+        const group = latinTwinGroups.find(g => g.includes(week));
+        if (group) {
+          group.forEach(twinWeek => {
+            gridState["Latin"][twinWeek] = false;
+          });
+        }
+      }
+
       saveToDevice();
       buildGrid();
       // If no lessons remain available, change spin button to a green "Done" button
@@ -1600,7 +1618,14 @@ function undoLastSpin() {
 
     // 1. Put the "mistake" back on the grid
     gridState[lastSpun.subject][lastSpun.week] = true;
-
+    if (lastSpun.subject === "Latin") {
+        const group = latinTwinGroups.find(g => g.includes(lastSpun.week));
+        if (group) {
+            group.forEach(twinWeek => {
+                gridState["Latin"][twinWeek] = true;
+            });
+        }
+    }
     // 2. Rewind the UI
     if (previousSpun) {
         // We must REBUILD the reels with the standard lists so the index matches the physical divs
@@ -1664,7 +1689,9 @@ function undoLastSpin() {
    ========================================================================== */
 
 function playSound(frequency, type, duration, volume = 0.1) {
-  if (audioCtx.state === 'suspended') audioCtx.resume();
+  if (audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
   const oscillator = audioCtx.createOscillator();
   const gainNode = audioCtx.createGain();
   oscillator.type = type; 
