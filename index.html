@@ -1678,17 +1678,23 @@ function playSound(frequency, type, duration, volume = 0.1) {
 }
   
 function playVictoryChime() {
-    if (audioCtx.state === 'suspended') audioCtx.resume();
+   if (audioCtx.state === 'suspended') audioCtx.resume();
     
-    // The exact frequencies for the classic 8-bit "Secret" chime
-    const notes = [784, 740, 622, 440, 415, 659, 831, 1047];
+    // A custom "Level Clear" fanfare (C Major arpeggio with a flourish!)
+    const notes = [
+        { freq: 523.25, delay: 0,   duration: 0.1 },   // Da! (C5)
+        { freq: 659.25, delay: 120, duration: 0.1 },   // Da! (E5)
+        { freq: 784.00, delay: 240, duration: 0.1 },   // Da! (G5)
+        { freq: 1046.50, delay: 360, duration: 0.15 }, // Daa! (C6)
+        { freq: 784.00, delay: 540, duration: 0.1 },   // dup (G5 dip)
+        { freq: 1046.50, delay: 680, duration: 0.45 }  // DAAAA! (C6 triumphant hold)
+    ];
     
-    notes.forEach((freq, index) => {
-        // Play each note 110 milliseconds after the last one
+    notes.forEach(note => {
         setTimeout(() => {
-            // Using a 'square' wave gives it that classic NES/Gameboy sound!
-            playSound(freq, 'square', 0.15, 0.04);
-        }, index * 110);
+            // Keeping the 'square' wave for that awesome retro console feel
+            playSound(note.freq, 'square', note.duration, 0.04);
+        }, note.delay);
     });
 }
   
