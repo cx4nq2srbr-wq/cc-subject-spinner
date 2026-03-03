@@ -679,9 +679,9 @@ background-color: #ff9d94; /* Faded coral/red */
     <div style="background: white; width: 90%; max-width: 350px; border-radius: 16px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
         <h3 style="margin-top: 0; text-align: center; color: var(--primary);">Settings</h3>
         
-        <div style="display: flex; justify-content: space-between; margin-bottom: 15px; align-items: center;">
-            <label style="font-weight: bold;">Mute All Sounds</label>
-            <input type="checkbox" id="setMute" onchange="updateSettings()" style="width: 20px; height: 20px;">
+        <div id="hapticsContainer" style="display: flex; justify-content: space-between; margin-bottom: 15px; align-items: center;">
+          <label style="font-weight: bold;">Vibration (Haptics)</label>
+          <input type="checkbox" id="setHaptics" onchange="updateSettings()" style="width: 20px; height: 20px;">
         </div>
 
         <div style="display: flex; justify-content: space-between; margin-bottom: 15px; align-items: center;">
@@ -816,7 +816,12 @@ function changeCycle(cycleNum) {
 window.onload = function() {
   document.getElementById('cyclePicker').value = currentCycle;
   lessonData = cycleData[currentCycle];
-
+  
+  if (!navigator.vibrate) {
+      const hapticsRow = document.getElementById('hapticsContainer');
+      if (hapticsRow) hapticsRow.style.display = 'none';
+  }
+  
   const prefix = getPrefix();
   const savedMax = localStorage.getItem(prefix + 'ccMaxWeek');
   if (savedMax) setMaxWeek(parseInt(savedMax, 10));
