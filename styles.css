@@ -1,0 +1,558 @@
+/* ==========================================================================
+   1. FOUNDATION & VARIABLES
+   ========================================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700;800&display=swap');
+
+:root {
+  --primary: #ff6f61;
+  --primary-dark: #d9534f;
+  --secondary: #4a90e2;
+  --bg: #f8fafc;
+  --card-bg: rgba(255, 255, 255, 0.9);
+  --text-main: #1e293b;
+  --text-muted: #64748b;
+  --radius: 24px;
+  --shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+
+  /* dimensions used by controls */
+  --spin-size: 85px;
+  --undo-size: 50px;
+}
+
+/* ==========================================================================
+   2. GLOBAL LAYOUT & BODY
+   ========================================================================== */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden; 
+  touch-action: pan-y;
+  -webkit-text-size-adjust: 100%;
+  overscroll-behavior: none;
+}
+
+input, button, select, textarea {
+  font-size: 16px !important; /* iOS zooms if font-size is less than 16px */
+}
+
+body {
+  font-family: 'Quicksand', sans-serif;
+  background: radial-gradient(circle at top, #f0f7ff, #e2e8f0);
+  background-attachment: fixed;
+  color: var(--text-main);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  padding: env(safe-area-inset-top, 20px) 15px 80px 15px; 
+}
+
+h1 {
+  font-weight: 800;
+  font-size: 2rem;
+  color: var(--secondary);
+  margin: 10px 0 5px;
+  text-shadow: 1px 1px 0px #fff;
+}
+
+.version-tag {
+  position: absolute; 
+  top: env(safe-area-inset-top, 10px);
+  right: 15px; 
+  font-size: 10px; 
+  color: var(--text-muted); 
+  opacity: 0.5;
+}
+
+/* ==========================================================================
+   3. UI COMPONENTS (Prompt & Answer Boxes)
+   ========================================================================== */
+
+/* Common Card Base Style */
+#result, #prompt, #answer, .slot {
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: var(--radius);
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  flex-shrink: 0;      
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Prompt Card */
+#prompt {
+  display: flex; 
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: 95%;          
+  max-width: 600px !important; 
+  height: 120px; 
+  overflow-y: auto;
+  margin: 12px auto; 
+  padding: 18px;
+  box-sizing: border-box;
+  font-size: 19px; 
+  font-weight: 600; 
+  background: rgba(255, 255, 255, 0.95);
+  border: 2px solid rgba(74, 144, 226, 0.2);
+  transition: border-color 0.3s ease;
+}
+
+/* Unified Answer Container */
+#answerContainer {
+  width: 95%;
+  max-width: 600px !important;
+  margin: 12px auto;
+  box-sizing: border-box;
+  background: var(--card-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: var(--radius);
+  border: 2px solid rgba(74, 144, 226, 0.2);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+#answerContainer.open {
+  border: var(--secondary);
+  transform: scale(1.01);
+}
+
+#toggleAnswer {
+    width: 100%;
+    padding: 18px;
+    /* Matches the Cycle Picker */
+    background-color: var(--secondary);
+    color: white;
+    border: none;
+    
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 800;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+#toggleAnswer:hover {
+    background-color: #357abd;
+}
+#answerContent {
+  padding: 0 20px;
+  max-height: 0px;   overflow-y: auto;
+  transition: all 0.3s ease;
+  color: var(--text-muted);
+  font-size: 17px;
+  white-space: pre-wrap;
+  text-align: center;
+  box-sizing: border-box; 
+}
+
+#answerContainer.open #answerContent {
+  max-height: 450px; 
+  padding: 20px;
+}
+
+/* ==========================================================================
+   4. THE SLOT MACHINE
+   ========================================================================== */
+.rollerBox { 
+  display: flex; 
+  justify-content: center; 
+  gap: 15px; 
+  margin: 20px 0; 
+}
+
+.slot { 
+  width: 150px; 
+  height: 80px; 
+  border: 3px solid rgba(74, 144, 226, 0.3); 
+  position: relative; 
+}
+
+.slot::after {
+  content: ""; 
+  position: absolute; 
+  top: 0; left: 0; right: 0; height: 100%;
+  background: linear-gradient(rgba(0,0,0,0.05) 0%, transparent 15%, transparent 85%, rgba(0,0,0,0.05) 100%); 
+  pointer-events: none;
+}
+
+.reel div { 
+  height: 80px; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  font-size: 20px; 
+  font-weight: 700; 
+  color: var(--text-main);
+  background: linear-gradient(to bottom, #fff, #f0f7ff, #fff);
+}
+
+.reel {
+  display: flex;
+  flex-direction: column;
+  transition: transform 2.5s cubic-bezier(0.45, 0.05, 0.55, 0.95); /* Default spin speed */
+}
+
+/* ==========================================================================
+   5. BUTTONS (Actions)
+   ========================================================================== */
+
+.control-row {
+  position: fixed;
+  /* Fixed 50px for the edit bar + the device notch */
+  bottom: calc(50px + env(safe-area-inset-bottom, 0px));
+  left: 0;
+  right: 0;
+  height: 0; /* Let children overflow so they don't block the screen */
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  pointer-events: none; 
+  z-index: 600;
+}
+
+#spinBtn, #undoBtn {
+  width: 90px; 
+  height: 90px;
+  border: none;
+  cursor: pointer;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+  display: flex;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.3s ease;
+  padding: 0; /* Remove padding as SVG handles placement */
+  overflow: visible;
+}
+
+#spinBtn svg, #undoBtn svg {
+  width: 100%;
+  height: 100%;
+}
+
+#spinBtn text, #undoBtn text {
+  fill: white;
+  font-family: 'Quicksand', sans-serif;
+  font-size: 18px; /* SVG font size scales differently */
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+#spinBtn {
+  background: var(--primary);
+  border-radius: 100% 0 0 0;
+  transform-origin: bottom right;
+}
+
+#undoBtn {
+  background: var(--secondary);
+  border-radius: 0 100% 0 0;
+  transform-origin: bottom left;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.3s ease, opacity 0.3s ease;
+}
+
+/* Bouncy feedback for both */
+#spinBtn:active, #undoBtn:not(:disabled):active {
+  transform: scale(0.85);
+}
+
+#undoBtn:disabled {
+   background-color: #94b8e2;
+    color: rgba(255, 255, 255, 0.6);
+    cursor: not-allowed;
+    transform: scale(0.98);
+    opacity: 0.7;
+    box-shadow: none;
+}
+
+#spinBtn:disabled {
+background-color: #ff9d94; /* Faded coral/red */
+    color: rgba(255, 255, 255, 0.6);
+    cursor: not-allowed;
+    transform: scale(0.98);
+    opacity: 0.7;
+    box-shadow: none;
+}
+
+  button:disabled svg text {
+    fill: rgba(255, 255, 255, 0.5);
+    transition: fill 0.3s ease;
+}
+  
+/* Edit Bar Polish */
+#editBtn {
+  position: fixed;
+  bottom: 0; 
+  left: 0; 
+  right: 0;
+  /* Safe area handling for modern iPhones */
+  height: calc(50px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  
+  background: white;
+  color: var(--secondary);
+  border: none;
+  border-top: 1px solid rgba(0,0,0,0.1);
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 16px;
+  z-index: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ==========================================================================
+   6. GRID OVERLAY & EDITING
+   ========================================================================== */
+#gridOverlay {
+  display: none; 
+  position: fixed; 
+  inset: 0; 
+  background: rgba(0,0,0,0.35);
+  z-index: 1000; 
+  justify-content: flex-start; 
+  align-items: stretch;
+}
+
+#gridContent {
+  width: 100vw; 
+  height: calc(var(--vh, 1vh) * 100);
+  display: flex; 
+  flex-direction: column; 
+  background: #fff;
+  overflow: hidden; 
+  padding-top: env(safe-area-inset-top, 44px);
+}
+
+.gridHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* This pushes the back arrow left, and the gear right */
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+/* Reusable class for the Back and Settings buttons */
+.circleBtn {
+    background-color: var(--secondary);
+    border: none;
+    color: white;
+    box-shadow: 0 4px 10px rgba(74, 144, 226, 0.3);
+    
+    width: 38px;  
+    height: 38px; 
+    border-radius: 50%;
+    font-size: 22px;
+    font-weight: bold;
+    cursor: pointer;
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1; 
+    padding: 0;
+    
+    transition: all 0.2s ease;
+}
+  
+.circleBtn:hover,
+.circleBtn:active {
+    background-color: #357abd;
+    transform: scale(1.05); 
+}
+  
+/* Table Controls & Layout */
+#grid {
+  padding: 12px 6px 32px 6px; 
+  overflow-y: auto; 
+  overflow-x: hidden;
+  touch-action: pan-y; 
+  width: 100%; 
+  box-sizing: border-box; 
+  flex: 1;
+}
+
+#grid table { table-layout: fixed; width: 100%; border-collapse: collapse; background: white; }
+
+#grid th, #grid td {
+  border: 1px solid #aaa; padding: 0; height: 40px; text-align: center;
+  white-space: nowrap; font-size: 14px;
+}
+
+/* Subject Column Header (Rotated Text) */
+#grid th.subjectHeader {
+  height: 100px;
+  background: #ffd966;
+  vertical-align: middle;
+}
+
+#grid th.subjectHeader span {
+  display: inline-block;
+  transform: rotate(-90deg) translateX(-30px); 
+  white-space: nowrap;
+  line-height: 1;
+  width: 20px; 
+  font-weight: 700;
+  font-size: 13px;
+  color: #000;
+  pointer-events: none;
+}
+
+/* Week Selection States */
+.week-header { background: #cce7ff; width: 56px; }
+.weekNumber {
+  display: flex; align-items: center; justify-content: center;
+  width: 100%; height: 100%; border: none; background: #fff;
+  font-weight: 700; font-size: 16px; color: #0b2540; cursor: pointer;
+}
+.weekNumber.active { background: #22c55e; color: #fff; }
+.completed { background: #ccc !important; color: #666; }
+.override { background: #d4f0d8; }
+.blocked { background: #fdecea; color: #5a2a28; }
+
+.grid-controls-row {
+    display: flex;
+    justify-content: space-between; /* Pushes items to the far left and right */
+    align-items: center;
+    padding: 15px 20px;
+    background: #fdfdfd;
+}
+
+.maxWeekControl {
+ display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #fff8d6;
+    padding: 6px 12px;
+    border-radius: 10px;
+    border: 1px solid #f3d08a;
+    font-weight: 600;
+}
+
+.maxWeekBtn {
+  width: 34px; height: 34px; background: #ffd37a; border: 1px solid #e6a83a;
+  border-radius: 8px; cursor: pointer; font-size: 18px;
+}
+
+.resetHeaderBtn {
+  background: none;
+  border: 1px solid #dc3545;
+  color: #dc3545;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.resetHeaderBtn:hover {
+  background: #fff5f5;
+}
+
+.resetHeaderBtn:active {
+  background: #dc3545;
+  color: white;
+}
+  
+/* ==========================================================================
+   7. MODALS & DIALOGS
+   ========================================================================== */
+  #resetConfirmOverlay {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.5);
+  z-index: 3000;
+}
+
+#doneOverlay {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.45);
+  z-index: 4000;
+}
+
+#doneOverlay .doneBox {
+  position: relative;
+  background: #fff;
+  padding: 18px;
+  border-radius: 14px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+  width: 88%;
+  max-width: 420px;
+  text-align: center;
+  overflow: hidden;
+  z-index: 2;
+}
+
+#doneOverlay canvas {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+#doneOverlay .doneActions { position: relative; z-index: 2; }
+
+
+#resetConfirmOverlay .confirmBox {
+  background: #fff;
+  padding: 25px;
+  border-radius: 15px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+  width: 85%;
+  max-width: 320px;
+  text-align: center;
+}
+
+#cyclePicker {
+    appearance: none; /* Removes default browser arrow */
+    -webkit-appearance: none;
+    background-color: var(--secondary);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    text-align: center;
+    transition: transform 0.2s, background 0.2s;
+    box-shadow: 0 4px 10px rgba(74, 144, 226, 0.3);
+    font-family: inherit;
+    min-width: 90px;
+    margin: 0;
+}
+
+#cyclePicker:hover {
+    background-color: #357abd;
+    transform: translateY(-1px);
+}
+
+#cyclePicker:active {
+    transform: translateY(0);
+}
+/* Mobile adjustments for the prompt box */
+@media (max-width: 480px) {
+    #prompt {
+        font-size: 16px; /* Shrinks the text slightly */
+        padding: 12px;   /* Reduces the inner padding to give text more room */
+        height: 110px;   /* Optional: slightly shorter box to save screen space on small phones */
+    }
+}
