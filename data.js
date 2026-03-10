@@ -420,7 +420,7 @@ const cycleData = {
       24: { p: "Canadian Prime Ministers", a: "Macdonald, Mackenzie, Macdonald, Abbott, Thompson, Bowell, Tupper, Laurier, Borden, Meighen, King, Meighen, King, Bennett, King, St. Laurent, Diefenbaker, Pearson, Trudeau, Clark, Trudeau, Turner, Mulroney, Campbell, Chrétien, Martin, Harper, Trudeau, Carney" }
     }
   },
-
+  
   3: {
     "Math": {
       1: { p: "1s and 2s", a: "1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15<br><br>2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30" },
@@ -592,8 +592,8 @@ const cycleData = {
       11: { p: "List the 66 books of the Bible in order: New Testament (Part 3)", a: "Matthew, Mark, Luke, John, Acts, Romans, 1 Corinthians, 2 Corinthians, Galatians, Ephesians, Philippians, Colossians, <b>1 Thessalonians, 2 Thessalonians, 1 Timothy, 2 Timothy, Titus, Philemon, Hebrews</b>, James, 1 Peter, 2 Peter, 1 John, 2 John, 3 John, Jude, Revelation" },
       12: { p: "List the 66 books of the Bible in order: New Testament (Part 4)", a: "Matthew, Mark, Luke, John, Acts, Romans, 1 Corinthians, 2 Corinthians, Galatians, Ephesians, Philippians, Colossians, 1 Thessalonians, 2 Thessalonians, 1 Timothy, 2 Timothy, Titus, Philemon, Hebrews, <b>James, 1 Peter, 2 Peter, 1 John, 2 John, 3 John, Jude, Revelation</b>" },
       13: { p: "How is Jesus portrayed in each Gospel?", a: "Matthew: as King; Mark: as Servant; Luke: as Man; John: as God" },
-      14: { p: "What are the names of Jesus' original twelve disciples? (Part 1)", a: "Peter, John, James (the brother of John), Andrew, Philip" },
-      15: { p: "What are the names of Jesus' original twelve disciples? (Part 2)", a: "Thomas, Bartholomew, Matthew, James (the son of Alphaeus), Simon the Zealot, Thaddaeus, Judas Iscariot" },
+      14: { p: "What are the names of Jesus' original twelve disciples? (Part 1)", a: "<b>Peter, John, James (the brother of John), Andrew, Philip</b>, Thomas, Bartholomew, Matthew, James (the son of Alphaeus), Simon the Zealot, Thaddaeus, Judas Iscariot" },
+      15: { p: "What are the names of Jesus' original twelve disciples? (Part 2)", a: "Peter, John, James (the brother of John), Andrew, Philip, <b>Thomas, Bartholomew, Matthew, James (the son of Alphaeus), Simon the Zealot, Thaddaeus, Judas Iscariot</b>" },
       16: { p: "Who was Judas Iscariot?", a: "The disciple who betrayed Jesus and delivered Him over to the Jewish chief priests" },
       17: { p: "What is God's new covenant with man?", a: "Jesus, the perfect sacrifice for sin; Eternal life to those who believe; The Holy Spirit lives within believers" },
       18: { p: "What does the book of Acts record?", a: "The ascension of Christ; Pentecost; Powerful acts of God through the Church" },
