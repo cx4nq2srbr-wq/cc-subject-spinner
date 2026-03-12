@@ -668,8 +668,6 @@ function updateReviewDisplay() {
     document.getElementById('reviewPrompt').textContent = lesson.p;
     document.getElementById('reviewAnswerContent').innerHTML = lesson.a;
     
-    // Auto-close answer when changing selection
-    document.getElementById('reviewAnswerContainer').classList.remove('open');
 }
 function initReviewMode() {
     const subReel = document.getElementById('reviewSubjectReel');
