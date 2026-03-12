@@ -112,6 +112,10 @@ function changeCycle(cycleNum) {
     const cycleMax = localStorage.getItem(getPrefix() + 'ccMaxWeek');
     setMaxWeek(cycleMax ? parseInt(cycleMax) : 24);
     buildGrid();
+
+    lastSpun = null;
+    previousSpun = null;
+    document.getElementById('undoBtn').disabled = true;
 }
 
 // --- Window Load & App Config ---
@@ -608,6 +612,10 @@ function resetGridConfirmed() {
   document.getElementById('answerContent').textContent = ""; 
   document.getElementById('answerContainer').classList.remove('open');
   document.getElementById('toggleAnswer').disabled = true;
+
+  lastSpun = null;
+  previousSpun = null;
+  document.getElementById('undoBtn').disabled = true; 
 }
 
 /* ==========================================================================
@@ -661,6 +669,8 @@ function hideDoneOverlay() {
     }
 }
 function startConfetti() {
+    stopConfetti();
+    
     const canvas = document.getElementById('confettiCanvas');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
