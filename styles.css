@@ -746,3 +746,20 @@ background-color: #ff9d94; /* Faded coral/red */
     min-height: 100px;
     margin-bottom: 15px;
 }
+
+
+.review-always-open #reviewAnswerContent {
+    max-height: none !important; /* Overrides the 0 height */
+    padding: 20px !important;    /* Overrides the 0 padding */
+    opacity: 1;
+    border-top: 1px solid rgba(0,0,0,0.05);
+}
+
+
+#reviewAnswerContainer.review-always-open {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+    border-radius: var(--radius);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: var(--shadow);
+}
