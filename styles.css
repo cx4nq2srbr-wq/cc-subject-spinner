@@ -653,8 +653,13 @@ background-color: #ff9d94; /* Faded coral/red */
     align-items: center;
 }
 
+#reviewSubjectReel, #reviewWeekReel {
+    transition: transform 0.2s ease-out !important;
+}
+
 #reviewPrompt {
-    background: rgba(255, 255, 255, 0.95);
+    background: var(--card-bg);
+    backdrop-filter: blur(12px);
     border-radius: var(--radius);
     border: 2px solid rgba(74, 144, 226, 0.2);
     box-shadow: var(--shadow);
@@ -668,6 +673,7 @@ background-color: #ff9d94; /* Faded coral/red */
     justify-content: center;
     font-size: 19px;
     font-weight: 600;
+    text-align: center;
 }
 
 .review-controls {
@@ -740,17 +746,13 @@ background-color: #ff9d94; /* Faded coral/red */
 }
 
 .review-slot .reel div {
-    height: 80px;
-    line-height: 80px;
-    text-align: center;
-    font-weight: 700;
-    font-size: 18px; /* Slightly smaller to fit "Geography" */
-    white-space: nowrap; /* Prevents icon and text from splitting */
+   height: 80px;
+    min-height: 80px;
+    max-height: 80px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    width: 100%;
+    box-sizing: border-box;
 }
 
 .prompt-text {
