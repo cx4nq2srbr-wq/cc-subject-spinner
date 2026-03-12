@@ -1,7 +1,7 @@
 /* ==========================================================================
    1. GLOBAL STATE & CONSTANTS
    ========================================================================== */
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+const audioCtx = null;
 let isSpinning = false;
 let lastSpun = null; // The one we just spun (the "mistake")
 let previousSpun = null;  // The one BEFORE that (the "rewind destination")
@@ -392,10 +392,20 @@ function undoLastSpin() {
    4. AUDIO & HAPTICS HELPERS
    ========================================================================== */
 
+   function initAudio() {
+  // Create it on the first user interaction
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  // Wake it up if the browser suspended it
+  if (audioCtx.state === 'suspended') {
+    audioCtx.resume();
+  }
+}
 function playSound(freq, type, duration, vol) {
   if (userSettings.muted) return;
   
-  if (audioCtx.state === 'suspended') audioCtx.resume();
+  initAudio();
   
   const osc = audioCtx.createOscillator();
   const gainNode = audioCtx.createGain();
@@ -417,7 +427,7 @@ function playSound(freq, type, duration, vol) {
 }
   
 function playVictoryChime() {
-    if (audioCtx.state === 'suspended') audioCtx.resume();
+    initAudio();
     
     // A longer, more complex 8-bit RPG fanfare with chords
     const notes = [
