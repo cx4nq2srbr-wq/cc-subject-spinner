@@ -1,7 +1,7 @@
 /* ==========================================================================
    1. GLOBAL STATE & CONSTANTS
    ========================================================================== */
-const audioCtx = null;
+let audioCtx = null;
 let isSpinning = false;
 let lastSpun = null; // The one we just spun (the "mistake")
 let previousSpun = null;  // The one BEFORE that (the "rewind destination")
@@ -670,7 +670,7 @@ function hideDoneOverlay() {
 }
 function startConfetti() {
     stopConfetti();
-    
+
     const canvas = document.getElementById('confettiCanvas');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
