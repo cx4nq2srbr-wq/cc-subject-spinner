@@ -1,6 +1,26 @@
 /* ==========================================================================
    1. GLOBAL STATE & CONSTANTS
    ========================================================================== */
+let currentMode = 'home'; // 'home', 'spinner', or 'review'
+
+function switchMode(mode) {
+    currentMode = mode;
+    // Hide all main containers
+    document.getElementById('homeScreen').style.display = 'none';
+    document.getElementById('spinnerContainer').style.display = 'none';
+    document.getElementById('reviewContainer').style.display = 'none';
+
+    // Show the selected one
+    if (mode === 'home') {
+        document.getElementById('homeScreen').style.display = 'flex';
+    } else if (mode === 'spinner') {
+        document.getElementById('spinnerContainer').style.display = 'block';
+    } else if (mode === 'review') {
+        document.getElementById('reviewContainer').style.display = 'block';
+        initReviewMode(); // Initialize default values for review
+    }
+}
+
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 let isSpinning = false;
 let lastSpun = null; // The one we just spun (the "mistake")
@@ -601,7 +621,49 @@ function resetGridConfirmed() {
 }
 
 /* ==========================================================================
-   8. Finish / Confetti Helpers
+   8. Review Mode Logic
+   ========================================================================== */
+let reviewSubjectIdx = 0;
+let reviewWeekIdx = 0;
+
+function initReviewMode() {
+    updateReviewDisplay();
+}
+
+function adjustReviewSubject(delta) {
+    reviewSubjectIdx = (reviewSubjectIdx + delta + subjects.length) % subjects.length;
+    updateReviewDisplay();
+    if (userSettings.haptics) navigator.vibrate(10);
+}
+
+function adjustReviewWeek(delta) {
+    reviewWeekIdx = (reviewWeekIdx + delta + weeks.length) % weeks.length;
+    updateReviewDisplay();
+    if (userSettings.haptics) navigator.vibrate(10);
+}
+
+function updateReviewDisplay() {
+    const subject = subjects[reviewSubjectIdx];
+    const week = weeks[reviewWeekIdx];
+    const lesson = lessonData[subject][week];
+
+    // Update the Reels visually (without the spin animation)
+    const subReel = document.getElementById('reviewSubjectReel');
+    const weekReel = document.getElementById('reviewWeekReel');
+    
+    // We reuse your 80px offset logic so it looks "docked" correctly
+    subReel.style.transform = `translateY(-${reviewSubjectIdx * 80}px)`;
+    weekReel.style.transform = `translateY(-${reviewWeekIdx * 80}px)`;
+
+    // Update the prompt and answer
+    document.getElementById('reviewPrompt').textContent = lesson.p;
+    document.getElementById('reviewAnswerContent').innerHTML = lesson.a;
+    
+    // Auto-close answer when changing selection
+    document.getElementById('reviewAnswerContainer').classList.remove('open');
+}
+/* ==========================================================================
+   9. Finish / Confetti Helpers
    ========================================================================== */
 let confettiAnimationId = null;
 let confettiParticles = null;
@@ -748,7 +810,6 @@ function stopConfetti() {
         if (box) box.style.display = 'block';
     }
 }
-
 /* ==========================================================================
    10. INPUT & SERVICE WORKER BINDINGS
    ========================================================================== */
