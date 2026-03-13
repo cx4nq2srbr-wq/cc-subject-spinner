@@ -641,10 +641,6 @@ position: absolute;
     align-items: center;
 }
 
-#reviewSubjectReel, #reviewWeekReel {
-    transition: transform 0.2s ease-out !important;
-}
-
 #reviewPrompt {
     background: var(--card-bg);
     backdrop-filter: blur(12px);
@@ -710,9 +706,7 @@ position: absolute;
     width: 150px; /* Increased from 120px to match spinner */
     height: 80px;
     overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    position: relative;
     box-shadow: var(--shadow);
     border: 3px solid rgba(74, 144, 226, 0.3); /* Match spinner border */
 }

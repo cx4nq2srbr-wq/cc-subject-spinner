@@ -129,6 +129,9 @@ function changeCycle(cycleNum) {
     const cycleMax = localStorage.getItem(getPrefix() + 'ccMaxWeek');
     setMaxWeek(cycleMax ? parseInt(cycleMax) : 24);
     buildGrid();
+    if (currentMode === 'review') {
+        updateReviewDisplay();
+    }
 }
 
 // --- Window Load & App Config ---
@@ -647,7 +650,6 @@ function adjustReviewWeek(delta) {
     if (userSettings.haptics) navigator.vibrate(10);
 }
 
-// 1. Update updateReviewDisplay to use a fast, clean transition
 function updateReviewDisplay() {
     const subject = subjects[reviewSubjectIdx];
     const week = weeks[reviewWeekIdx];
@@ -664,7 +666,6 @@ function updateReviewDisplay() {
     document.getElementById('reviewAnswerContent').innerHTML = lesson.a;
 }
 
-// 2. Update initReviewMode to ensure the reels stay simple (no random sequence)
 function initReviewMode() {
     const subReel = document.getElementById('reviewSubjectReel');
     const weekReel = document.getElementById('reviewWeekReel');
@@ -689,6 +690,11 @@ function initReviewMode() {
 
     reviewSubjectIdx = 0;
     reviewWeekIdx = 0;
+    
+    // Force the browser to apply the "transition: none" BEFORE updating the display
+    void subReel.offsetHeight;
+    void weekReel.offsetHeight;
+
     updateReviewDisplay();
 }
 /* ==========================================================================
