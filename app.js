@@ -637,42 +637,13 @@ function resetGridConfirmed() {
    ========================================================================== */
 let reviewSubjectIdx = 0;
 let reviewWeekIdx = 0;
-
-function adjustReviewSubject(delta) {
-    reviewSubjectIdx = (reviewSubjectIdx + delta + subjects.length) % subjects.length;
-    updateReviewDisplay();
-    if (userSettings.haptics) navigator.vibrate(10);
-}
-
-function adjustReviewWeek(delta) {
-    reviewWeekIdx = (reviewWeekIdx + delta + weeks.length) % weeks.length;
-    updateReviewDisplay();
-    if (userSettings.haptics) navigator.vibrate(10);
-}
-
-function updateReviewDisplay() {
-    const subject = subjects[reviewSubjectIdx];
-    const week = weeks[reviewWeekIdx];
-    const lesson = lessonData[subject][week];
-    const subReel = document.getElementById('reviewSubjectReel');
-    const weekReel = document.getElementById('reviewWeekReel');
-
-    subReel.style.transition = "transform 0.2s ease-out";
-    weekReel.style.transition = "transform 0.2s ease-out";
-    subReel.style.transform = `translateY(-${reviewSubjectIdx * 80}px)`;
-    weekReel.style.transform = `translateY(-${reviewWeekIdx * 80}px)`;
-
-    document.getElementById('reviewPrompt').textContent = lesson.p;
-    document.getElementById('reviewAnswerContent').innerHTML = lesson.a;
-}
+let scrollTimeout;
 
 function initReviewMode() {
     const subReel = document.getElementById('reviewSubjectReel');
     const weekReel = document.getElementById('reviewWeekReel');
-
-    // Clear existing transitions for the setup
-    subReel.style.transition = "none";
-    weekReel.style.transition = "none";
+    const scrollSub = document.getElementById('scrollSubject');
+    const scrollWeek = document.getElementById('scrollWeek');
 
     subReel.innerHTML = "";
     subjects.forEach(s => {
@@ -690,12 +661,102 @@ function initReviewMode() {
 
     reviewSubjectIdx = 0;
     reviewWeekIdx = 0;
-    
-    // Force the browser to apply the "transition: none" BEFORE updating the display
-    void subReel.offsetHeight;
-    void weekReel.offsetHeight;
+
+    // Attach native scroll listeners to track finger swipes
+    if (!scrollSub.dataset.listening) {
+        scrollSub.addEventListener('scroll', handleReelScroll);
+        scrollWeek.addEventListener('scroll', handleReelScroll);
+        scrollSub.dataset.listening = "true";
+    }
 
     updateReviewDisplay();
+}
+
+function handleReelScroll(e) {
+    clearTimeout(scrollTimeout);
+    // Wait for the finger swipe/bounce to finish before updating the screen
+    scrollTimeout = setTimeout(() => {
+        const el = e.target;
+        const idx = Math.round(el.scrollTop / 80);
+        
+        if (el.id === 'scrollSubject' && reviewSubjectIdx !== idx) {
+            reviewSubjectIdx = Math.max(0, Math.min(idx, subjects.length - 1));
+            updateReviewDisplay();
+            if(userSettings.haptics) navigator.vibrate(10);
+        } else if (el.id === 'scrollWeek' && reviewWeekIdx !== idx) {
+            reviewWeekIdx = Math.max(0, Math.min(idx, weeks.length - 1));
+            updateReviewDisplay();
+            if(userSettings.haptics) navigator.vibrate(10);
+        }
+    }, 150);
+}
+
+function updateReviewDisplay() {
+    const subject = subjects[reviewSubjectIdx];
+    const week = weeks[reviewWeekIdx];
+    const lesson = lessonData[subject][week];
+
+    // Safely force scroll position if it was changed via the Modal or Cycle change
+    const scrollSub = document.getElementById('scrollSubject');
+    const scrollWeek = document.getElementById('scrollWeek');
+    if (Math.round(scrollSub.scrollTop / 80) !== reviewSubjectIdx) {
+        scrollSub.scrollTo({ top: reviewSubjectIdx * 80, behavior: 'smooth' });
+    }
+    if (Math.round(scrollWeek.scrollTop / 80) !== reviewWeekIdx) {
+        scrollWeek.scrollTo({ top: reviewWeekIdx * 80, behavior: 'smooth' });
+    }
+
+    document.getElementById('reviewPrompt').textContent = lesson.p;
+    document.getElementById('reviewAnswerContent').innerHTML = lesson.a;
+}
+
+// --- Quick Picker Modal Logic ---
+let currentPickerType = '';
+
+function openPicker(type) {
+    currentPickerType = type;
+    const overlay = document.getElementById('reviewPickerOverlay');
+    const title = document.getElementById('pickerTitle');
+    const grid = document.getElementById('pickerGrid');
+    grid.innerHTML = '';
+
+    if (type === 'subject') {
+        title.textContent = 'Select Subject';
+        grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(100px, 1fr))';
+        subjects.forEach((s, i) => {
+            const btn = document.createElement('button');
+            btn.style.cssText = `padding: 12px; border-radius: 12px; font-weight: 700; font-size: 14px; cursor: pointer; border: 2px solid #cce7ff; background: ${i === reviewSubjectIdx ? 'var(--secondary)' : '#f0f7ff'}; color: ${i === reviewSubjectIdx ? 'white' : 'var(--secondary)'};`;
+            btn.innerHTML = `${subjectIcons[s]} ${s}`;
+            btn.onclick = () => selectPickerItem(i);
+            grid.appendChild(btn);
+        });
+    } else {
+        title.textContent = 'Select Week';
+        grid.style.gridTemplateColumns = 'repeat(auto-fill, minmax(60px, 1fr))';
+        weeks.forEach((w, i) => {
+            const btn = document.createElement('button');
+            btn.style.cssText = `padding: 12px; border-radius: 12px; font-weight: 700; font-size: 14px; cursor: pointer; border: 2px solid #cce7ff; background: ${i === reviewWeekIdx ? 'var(--secondary)' : '#f0f7ff'}; color: ${i === reviewWeekIdx ? 'white' : 'var(--secondary)'};`;
+            btn.textContent = w;
+            btn.onclick = () => selectPickerItem(i);
+            grid.appendChild(btn);
+        });
+    }
+    overlay.style.display = 'flex';
+}
+
+function closePicker() {
+    document.getElementById('reviewPickerOverlay').style.display = 'none';
+}
+
+function selectPickerItem(idx) {
+    if (currentPickerType === 'subject') {
+        reviewSubjectIdx = idx;
+    } else {
+        reviewWeekIdx = idx;
+    }
+    updateReviewDisplay();
+    if(userSettings.haptics) navigator.vibrate(20);
+    closePicker();
 }
 /* ==========================================================================
    9. Finish / Confetti Helpers

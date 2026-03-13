@@ -734,12 +734,49 @@ position: absolute;
 .review-slot {
     background: white;
     border-radius: var(--radius);
-    width: 150px; /* Increased from 120px to match spinner */
+    width: 150px; 
     height: 80px;
-    overflow: hidden;
-    position: relative;
+    position: relative; 
     box-shadow: var(--shadow);
-    border: 3px solid rgba(74, 144, 226, 0.3); /* Match spinner border */
+    border: 3px solid rgba(74, 144, 226, 0.3); 
+    cursor: pointer;
+    
+    /* Magic CSS for native touch scrolling & snapping */
+    overflow-y: auto;
+    scroll-snap-type: y mandatory;
+    scrollbar-width: none; /* Hides scrollbar in Firefox */
+    -ms-overflow-style: none; /* Hides scrollbar in IE/Edge */
+}
+
+/* Hides scrollbar in Safari/Chrome */
+.review-slot::-webkit-scrollbar { display: none; }
+
+/* Force the reel to act as a normal list instead of animating with JS */
+.review-slot .reel {
+    transition: none !important;
+    transform: none !important;
+}
+
+.review-slot .reel div {
+    height: 80px;
+    scroll-snap-align: start; /* Snaps exactly to the box edges */
+}
+
+.picker-hint {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 11px;
+    color: var(--secondary);
+    pointer-events: none; /* Lets clicks pass through to the slot */
+    background: rgba(255,255,255,0.9);
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 #reviewContainer {
@@ -756,17 +793,6 @@ position: absolute;
     min-height: 100vh;
     padding-top: 80px; /* More room for home icon */
     overflow-y: auto; /* Allow scrolling if answer is long */
-}
-
-.review-slot .reel div {
-    height: 80px;
-    min-height: 80px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    white-space: nowrap; /* Keeps icon and text on one line */
-    gap: 8px;
-    font-size: 18px; /* Slightly smaller for long words */
 }
 
 .prompt-text {
