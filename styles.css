@@ -24,7 +24,6 @@
    ========================================================================== */
 html {
   height: 100%;
-  /* Colors the absolute bottom of the screen to match your gradient */
   background-color: #e2e8f0; 
 }
 
@@ -32,7 +31,7 @@ body {
   margin: 0;
   min-height: 100vh;
   min-height: 100dvh; 
-  /* Added 50px back to the bottom padding (70px total) */
+  /* The 70px padding is safely merged here! */
   padding: env(safe-area-inset-top, 20px) 15px calc(70px + env(safe-area-inset-bottom, 0px)) 15px;
   overflow: hidden; 
   touch-action: pan-y;
@@ -51,35 +50,6 @@ body {
 
 input, button, select, textarea {
   font-size: 16px !important; /* iOS zooms if font-size is less than 16px */
-}
-
-body {
-  font-family: 'Quicksand', sans-serif;
-  background: radial-gradient(circle at top, #f0f7ff, #e2e8f0);
-  background-attachment: fixed;
-  color: var(--text-main);
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
-  padding: env(safe-area-inset-top, 20px) 15px calc(20px + env(safe-area-inset-bottom, 0px)) 15px;
-}
-
-h1 {
-  font-weight: 800;
-  font-size: 2rem;
-  color: var(--secondary);
-  margin: 10px 0 5px;
-  text-shadow: 1px 1px 0px #fff;
-}
-
-.version-tag {
-  position: absolute; 
-  top: env(safe-area-inset-top, 10px);
-  right: 15px; 
-  font-size: 10px; 
-  color: var(--text-muted); 
-  opacity: 0.5;
 }
 
 /* ==========================================================================
@@ -645,20 +615,25 @@ background-color: #ff9d94; /* Faded coral/red */
 }
 
 .back-to-home {
-    pointer-events: auto; /* Required so it's clickable */
-    margin-bottom: 20px;  /* Floats it perfectly above the bottom edge */
-    width: 48px;          /* Makes it slightly larger */
+    position: fixed;
+    bottom: calc(70px + env(safe-area-inset-bottom, 0px)); 
+    left: 50%;
+    transform: translateX(-50%);
+    
+    width: 48px;          
     height: 48px;
     z-index: 1000;
+    pointer-events: auto; 
 }
 
 .back-to-home:hover {
     background-color: #357abd;
-    transform: scale(1.05);
+    /* Includes the translateX so it doesn't jump to the left when hovered! */
+    transform: translateX(-50%) scale(1.05);
 }
 
 .back-to-home:active {
-    transform: scale(0.95);
+    transform: translateX(-50%) scale(0.95);
 }
 
 /* ========================================================================== 
