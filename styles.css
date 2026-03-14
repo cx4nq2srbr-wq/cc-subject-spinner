@@ -584,8 +584,9 @@ background-color: #ff9d94; /* Faded coral/red */
 
 .mode-cards {
     display: flex;
+    flex-direction: column; /* The magic line: stacks them vertically! */
+    align-items: center;    /* Keeps them perfectly centered on the screen */
     gap: 20px;
-    justify-content: center;
     margin-top: 40px;
     padding: 0 15px;
 }
@@ -596,8 +597,12 @@ background-color: #ff9d94; /* Faded coral/red */
     border-radius: var(--radius);
     border: 2px solid rgba(255, 255, 255, 0.4);
     box-shadow: var(--shadow);
-    padding: 30px 20px;
-    width: 150px;
+    padding: 25px 20px;
+    
+    /* Made them wider so they look great stacked on top of each other */
+    width: 80%;         
+    max-width: 280px;   
+    
     cursor: pointer;
     transition: transform 0.3s ease, border-color 0.3s ease;
 }
