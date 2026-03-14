@@ -19,9 +19,18 @@
 <body>
 
 <div id="homeScreen" class="view-container active">
-    <div class="version-tag">v<span id="app-version">loading...</span></div>
+    <div class="version-tag">v<span id="app-version">Loading...</span></div>
     
     <h1 class="app-title">CC Study Tool</h1>
+    
+    <div style="margin: 5px 0 20px;">
+        <select id="cyclePicker" onchange="changeCycle(this.value)">
+            <option value="1">Cycle 1</option>
+            <option value="2">Cycle 2</option>
+            <option value="3">Cycle 3</option>
+        </select>
+    </div>
+
     <div class="mode-cards">
         <div class="mode-card" onclick="switchMode('spinner')">
             <div class="icon">🎯</div>
@@ -159,11 +168,6 @@
                 <span id="maxWeekDisplay">12</span>
                 <button id="increaseWeek" class="maxWeekBtn" onclick="increaseWeek()">+</button>
             </div>
-            <select id="cyclePicker" onchange="changeCycle(this.value)">
-                <option value="1">Cycle 1</option>
-                <option value="2">Cycle 2</option>
-                <option value="3">Cycle 3</option>
-            </select>
         </div>
 
         <div id="grid"></div>
