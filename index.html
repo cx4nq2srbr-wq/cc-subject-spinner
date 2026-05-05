@@ -152,6 +152,14 @@
             <div style="font-size: 26px;">⏱️</div>
         </button>
 
+        <button class="setting-item" onclick="startTriviaGame()">
+            <div class="setting-text">
+                <h4>Trivia Quiz</h4>
+                <p>Test your knowledge with multiple choice</p>
+            </div>
+            <div style="font-size: 26px;">🧠</div>
+        </button>
+
         <button class="setting-item" onclick="openMapMenu()">
             <div class="setting-text">
                 <h4>Map Explorer</h4>
@@ -269,6 +277,28 @@
     </div>
 </div>
 
+<div id="triviaGameContainer" class="view-container">
+    <div style="width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; box-sizing: border-box;">
+        <button onclick="exitTriviaGame()" style="background: none; border: none; color: #ef4444; font-weight: 800; font-size: 16px; cursor: pointer; padding: 0;">Quit</button>
+        <span id="triviaScoreDisplay" style="color: var(--text-muted); font-weight: 800; font-size: 14px; text-transform: uppercase;">Score: 0</span>
+    </div>
+
+    <div id="triviaSubjectLabel" style="font-size: 16px; font-weight: 800; color: var(--secondary); margin-bottom: -5px; margin-top: 10px;">Subject - Week</div>
+
+    <div id="triviaPrompt"></div>
+
+    <div style="position: relative; width: 100%; max-width: 600px; margin: 0 auto;">
+         <button id="audioBtnTrivia" class="audio-btn" onclick="toggleVoiceover(event, 'audioBtnTrivia')" style="top: -20px; right: 20px; background: var(--secondary);"></button>
+    </div>
+
+    <div class="trivia-grid">
+        <button id="triviaBtn0" class="trivia-option-btn"></button>
+        <button id="triviaBtn1" class="trivia-option-btn"></button>
+        <button id="triviaBtn2" class="trivia-option-btn"></button>
+        <button id="triviaBtn3" class="trivia-option-btn"></button>
+    </div>
+</div>
+
 <div id="taResultsOverlay" style="display: none; position: fixed; inset: 0; align-items: center; justify-content: center; background: rgba(0,0,0,0.45); z-index: 5000;">
     <canvas id="taConfettiCanvas" style="position: absolute; inset: 0; pointer-events: none; z-index: 5001;"></canvas>
     
@@ -285,6 +315,25 @@
             
             <div style="display:flex; justify-content:center;">
                 <button onclick="closeTAResults()" style="background:#22c55e; color:white; border:none; padding:12px 18px; border-radius:12px; font-weight:700; cursor:pointer; width: 100%; font-size: 16px;">Awesome!</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="triviaResultsOverlay" style="display: none; position: fixed; inset: 0; align-items: center; justify-content: center; background: rgba(0,0,0,0.45); z-index: 5000;">
+    <canvas id="triviaConfettiCanvas" style="position: absolute; inset: 0; pointer-events: none; z-index: 5001;"></canvas>
+    
+    <div class="doneBox" style="position: relative; z-index: 5002;">
+        <div class="doneActions">
+            <h3 style="margin-top:0; color: var(--secondary); font-size: 24px;">Quiz Complete!</h3>
+            
+            <div style="font-size: 48px; margin: 10px 0;">🧠</div>
+            
+            <p style="font-size: 18px; font-weight: 800; color: var(--text-main); margin-top: 5px;">Score: <span id="triviaFinalScore" style="color: var(--secondary);">0 / 0</span></p>
+            <p id="triviaAccuracy" style="font-size: 16px; font-weight: 700; color: var(--text-muted); margin-bottom: 25px; margin-top: -10px;">Accuracy: 0%</p>
+            
+            <div style="display:flex; justify-content:center;">
+                <button onclick="closeTriviaResults()" style="background:#22c55e; color:white; border:none; padding:12px 18px; border-radius:12px; font-weight:700; cursor:pointer; width: 100%; font-size: 16px;">Awesome!</button>
             </div>
         </div>
     </div>

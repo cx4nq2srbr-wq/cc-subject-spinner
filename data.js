@@ -632,3 +632,26 @@ const cycleData = {
     }
   }
 };
+
+/* ==========================================================================
+   CUSTOM TRIVIA BANK
+   ========================================================================== */
+const customTriviaBank = [
+    {
+        cycle: 1,
+        subject: "Science",
+        week: 4,
+        q: "Nucleus, cytoplasm, vacuole, mitochondria, cell membrane, cell wall, chloroplasts, and Golgi bodies are parts of what kind of cell?",
+        options: ["Animal cell", "Plant cell", "Duracell", "Bacteria cell"],
+        answerIndex: 1 // 1 is the second item in the array ("Plant cell") because arrays start at 0
+    },
+    {
+        cycle: 1,
+        subject: "Timeline",
+        week: 16,
+        q: "The French Revolution took place during what age?",
+        options: ["Age of Industry", "Age of Enlightenment", "Age of Exploration", "Age of Information"],
+        answerIndex: 0 // 0 is the first item ("Age of Industry")
+    }
+    // You can copy and paste the block above to add hundreds of custom questions!
+];

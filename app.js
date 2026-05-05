@@ -5,7 +5,7 @@ let currentMode = 'spinner';
 
 function switchMode(mode) {
     stopVoiceover();
-    const challengeIds = ['challengeContainer', 'taMenuContainer', 'taGameContainer', 'mistakeGameContainer', 'mapMenuContainer', 'mapGameContainer'];
+const challengeIds = ['challengeContainer', 'taMenuContainer', 'taGameContainer', 'mistakeGameContainer', 'mapMenuContainer', 'mapGameContainer', 'triviaGameContainer'];
 
     // THE FIX: Double-tap logic to return to the Focus menu
     if (mode === 'challenge' && currentMode === 'challenge') {
@@ -2002,4 +2002,171 @@ function closeMapResults() {
     
     // Clean up the map game and go back to the menu!
     exitMapGame(); 
+}
+
+/* ==========================================================================
+   15. TRIVIA GAME LOGIC
+   ========================================================================== */
+let triviaQueue = [];
+let currentTrivia = null;
+let triviaScoreRight = 0;
+let triviaScoreWrong = 0;
+let isTriviaProcessing = false;
+
+function startTriviaGame() {
+    document.getElementById('challengeContainer').classList.remove('active');
+    document.getElementById('triviaGameContainer').classList.add('active');
+    activeChallengePage = 'triviaGameContainer';
+
+    triviaScoreRight = 0;
+    triviaScoreWrong = 0;
+    document.getElementById('triviaScoreDisplay').textContent = `Score: 0`;
+
+    triviaQueue = [];
+    const maxLimit = getMaxWeek();
+
+    // 1. Filter our custom trivia bank based on the active cycle and grid state
+    if (typeof customTriviaBank !== 'undefined') {
+        customTriviaBank.forEach(trivia => {
+            if (trivia.cycle === currentCycle) {
+                const s = trivia.subject;
+                const w = trivia.week;
+                
+                // Only add the question if it hasn't been completed on the main grid yet!
+                if (!blockedSubjects.includes(s) &&
+                    (w <= maxLimit || allowedWeeks.includes(w)) &&
+                    !blockedWeeks.includes(w) &&
+                    gridState[s] && gridState[s][w]) {
+                    triviaQueue.push(trivia);
+                }
+            }
+        });
+    }
+
+    // 2. Shuffle the deck
+    triviaQueue.sort(() => Math.random() - 0.5);
+
+    if (triviaQueue.length === 0) {
+        alert("No trivia questions available! Either the grid is finished, or we need to add more questions to the data bank.");
+        exitTriviaGame();
+        return;
+    }
+
+    nextTriviaQuestion();
+}
+
+function exitTriviaGame() {
+    stopVoiceover();
+    document.getElementById('triviaGameContainer').classList.remove('active');
+    document.getElementById('challengeContainer').classList.add('active');
+    activeChallengePage = 'challengeContainer';
+}
+
+function nextTriviaQuestion() {
+    isTriviaProcessing = false;
+    stopVoiceover();
+
+    if (triviaQueue.length === 0) {
+        finishTriviaGame();
+        return;
+    }
+
+    // Pull the next custom question from the deck
+    currentTrivia = triviaQueue.shift();
+
+    document.getElementById('triviaSubjectLabel').textContent = `${subjectIcons[currentTrivia.subject]} ${currentTrivia.subject} - Week ${currentTrivia.week}`;
+    document.getElementById('triviaPrompt').textContent = currentTrivia.q;
+
+    // Map the custom options to our button logic
+    let allOptions = [
+        { text: currentTrivia.options[0], isCorrect: currentTrivia.answerIndex === 0 },
+        { text: currentTrivia.options[1], isCorrect: currentTrivia.answerIndex === 1 },
+        { text: currentTrivia.options[2], isCorrect: currentTrivia.answerIndex === 2 },
+        { text: currentTrivia.options[3], isCorrect: currentTrivia.answerIndex === 3 }
+    ];
+
+    // Shuffle the options so the correct answer isn't always in the same spot!
+    allOptions.sort(() => Math.random() - 0.5);
+
+    // Populate the buttons
+    for (let i = 0; i < 4; i++) {
+        const btn = document.getElementById(`triviaBtn${i}`);
+        btn.innerHTML = allOptions[i].text;
+        btn.className = 'trivia-option-btn'; // Reset colors from previous question
+        btn.onclick = () => processTriviaAnswer(i, allOptions[i].isCorrect, btn);
+    }
+    
+    prepVoiceover(currentTrivia.subject, currentTrivia.week, 'audioBtnTrivia');
+}
+
+function processTriviaAnswer(index, isCorrect, btnElement) {
+    if (isTriviaProcessing) return; // Prevent double taps!
+    isTriviaProcessing = true;
+    
+    if (userSettings.haptics && navigator.vibrate) navigator.vibrate(15);
+
+    if (isCorrect) {
+        btnElement.classList.add('correct');
+        playSound(988, 'triangle', 0.1, 0.03);
+        setTimeout(() => playSound(1319, 'triangle', 0.2, 0.03), 100);
+        triviaScoreRight++;
+        
+        // Remove from the master grid!
+        if (gridState[currentTrivia.subject]) {
+            gridState[currentTrivia.subject][currentTrivia.week] = false;
+        }
+        saveToDevice();
+        buildGrid();
+
+    } else {
+        btnElement.classList.add('wrong');
+        playSound(200, 'triangle', 0.1, 0.05);
+        triviaScoreWrong++;
+        
+        // Log it as a mistake for the Review Mistake mode!
+        const idx = mistakesBank.findIndex(m => m.subject === currentTrivia.subject && m.week === currentTrivia.week);
+        if (idx === -1) {
+            mistakesBank.push({ subject: currentTrivia.subject, week: currentTrivia.week });
+            saveToDevice();
+            updateFlagUI();
+        }
+        
+        // Highlight the correct answer so they can learn from it
+        for (let i = 0; i < 4; i++) {
+            const checkBtn = document.getElementById(`triviaBtn${i}`);
+            if (checkBtn.onclick.toString().includes('true')) {
+                checkBtn.classList.add('correct-reveal');
+            }
+        }
+        
+        // Push it to the back of the deck to try again later
+        triviaQueue.push(currentTrivia);
+    }
+    
+    document.getElementById('triviaScoreDisplay').textContent = `Score: ${triviaScoreRight}`;
+
+    // Wait a second so they can see the colors before moving to the next question
+    setTimeout(() => {
+        nextTriviaQuestion();
+    }, 1500);
+}
+
+function finishTriviaGame() {
+    playVictoryChime();
+    if (userSettings.haptics && navigator.vibrate) navigator.vibrate([60,30,60]);
+    
+    const total = triviaScoreRight + triviaScoreWrong;
+    const accuracy = total > 0 ? Math.round((triviaScoreRight / total) * 100) : 0;
+    
+    document.getElementById('triviaFinalScore').textContent = `${triviaScoreRight} / ${total}`;
+    document.getElementById('triviaAccuracy').textContent = `Accuracy: ${accuracy}%`;
+    
+    document.getElementById('triviaResultsOverlay').style.display = 'flex';
+    startConfetti('triviaConfettiCanvas');
+}
+
+function closeTriviaResults() {
+    stopConfetti('triviaConfettiCanvas');
+    document.getElementById('triviaResultsOverlay').style.display = 'none';
+    exitTriviaGame();
 }
