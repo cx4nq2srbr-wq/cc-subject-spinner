@@ -1803,25 +1803,6 @@ function startMapGame(selectedMapSvg) {
             bounds: true,
             boundsPadding: 0.05 
         });
-
-        // CPU-Friendly GPU Toggle
-        const goFast = () => {
-            if (svg.style.willChange !== 'transform') {
-                svg.style.willChange = 'transform';
-            }
-            clearTimeout(mapDragTimeout);
-        };
-
-        const goHD = () => {
-            clearTimeout(mapDragTimeout);
-            mapDragTimeout = setTimeout(() => {
-                svg.style.willChange = 'auto';
-            }, 150); 
-        };
-
-        mapPanZoom.on('panstart', goFast);
-        mapPanZoom.on('zoom', goFast);
-        mapPanZoom.on('panend', goHD);
         
         // Instantly snap to our perfect zoom
         mapPanZoom.zoomAbs(wrapper.clientWidth / 2, wrapper.clientHeight / 2, initialZoom);
