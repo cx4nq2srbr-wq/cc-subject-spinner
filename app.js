@@ -2187,6 +2187,8 @@ function processTriviaAnswer(index, isCorrect, btnElement) {
     if (isTriviaProcessing) return; // Prevent double taps!
     isTriviaProcessing = true;
     
+    let delayTime = 1000; // Default: move fast (1 second) if they get it right!
+
     if (userSettings.haptics && navigator.vibrate) navigator.vibrate(15);
 
     if (isCorrect) {
@@ -2215,21 +2217,23 @@ function processTriviaAnswer(index, isCorrect, btnElement) {
             updateFlagUI();
         }
         
-        // Highlight the correct answer so they can learn from it
+        // Highlight the correct answer with a thick green border
         for (let i = 0; i < 4; i++) {
             const checkBtn = document.getElementById(`triviaBtn${i}`);
             if (checkBtn.onclick.toString().includes('true')) {
                 checkBtn.classList.add('correct-reveal');
             }
         }
+
+        delayTime = 3000; // They missed it! Wait 3 full seconds so they can read the answer.
     }
     
     document.getElementById('triviaScoreDisplay').textContent = `Score: ${triviaScoreRight}`;
 
-    // Wait a second so they can see the colors before moving to the next question
+    // Wait the calculated amount of time before loading the next question
     setTimeout(() => {
         nextTriviaQuestion();
-    }, 1500);
+    }, delayTime);
 }
 
 function finishTriviaGame() {
