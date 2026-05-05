@@ -152,10 +152,10 @@
             <div style="font-size: 26px;">⏱️</div>
         </button>
 
-        <button class="setting-item" onclick="startTriviaGame()">
+        <button class="setting-item" onclick="openTriviaMenu()">
             <div class="setting-text">
                 <h4>Trivia Quiz</h4>
-                <p>Test your knowledge with multiple choice</p>
+                <p>Test your knowledge</p>
             </div>
             <div style="font-size: 26px;">🧠</div>
         </button>
@@ -275,6 +275,22 @@
     <div id="twoFingerReminder" style="position: absolute; bottom: 15%; left: 50%; transform: translateX(-50%); display: none; align-items: center; justify-content: center; background: var(--primary); color: white; padding: 12px 24px; border-radius: 30px; font-weight: 800; font-size: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); z-index: 100; pointer-events: none; transition: opacity 0.3s ease;">
         <span style="margin-right: 10px; font-size: 24px;"></span> Use two fingers to scroll and zoom
     </div>
+</div>
+
+<div id="triviaMenuContainer" class="view-container">
+    <div style="width: 100%; display: flex; align-items: center; padding: 15px 25px; box-sizing: border-box;">
+        <button onclick="exitTriviaMenu()" style="background: none; border: none; color: var(--secondary); font-weight: 800; font-size: 16px; cursor: pointer; padding: 0;">← Back</button>
+    </div>
+    
+    <h2 style="color: var(--primary); margin-top: 20px;">How Many Questions?</h2>
+    
+    <div class="rollerBox" style="margin: 30px 0;">
+        <div class="slot review-slot" id="triviaCountScroll" style="width: 160px;">
+            <div class="reel" id="triviaCountReel"></div>
+        </div>
+    </div>
+    
+    <button onclick="startTriviaGame()" style="background: var(--primary); color: white; border: none; padding: 15px 40px; border-radius: 20px; font-size: 18px; font-weight: 800; cursor: pointer; box-shadow: 0 4px 15px rgba(255,111,97,0.3);">START</button>
 </div>
 
 <div id="triviaGameContainer" class="view-container">
